@@ -1,0 +1,30 @@
+{% extends "base.html" %}{% load humanize %}
+{% block titolo %}Fatti del {{ giorno|date:"j F Y" }}{% endblock %}
+{% block contenuto %}
+<nav class="giorni">
+  <a href="{% url 'fatti_del_giorno_data' precedente|date:'Y-m-d' %}">← {{ precedente|date:"j M" }}</a>
+  <form method="get" action="{% url 'fatti_del_giorno' %}" onsubmit="if(this.d.value){location.href='{% url 'fatti_del_giorno' %}'+this.d.value+'/';}return false;">
+    <input type="date" name="d" value="{{ giorno|date:'Y-m-d' }}" aria-label="Scegli il giorno"><button type="submit">Vai</button>
+  </form>
+  {% if successivo %}<a href="{% url 'fatti_del_giorno_data' successivo|date:'Y-m-d' %}">{{ successivo|date:"j M" }} →</a>{% else %}<span></span>{% endif %}
+</nav>
+<h1>{{ giorno|date:"l j F Y"|capfirst }}</h1>
+<section class="numeri">
+  <div><strong>{{ riepilogo.fatti|intcomma }}</strong>fatti riportati</div>
+  <div><strong>{{ riepilogo.aggressioni|intcomma }}</strong>aggressioni</div>
+  <div><strong>{{ riepilogo.arresti|intcomma }}</strong>arresti</div>
+  <div><strong>{{ riepilogo.comuni|intcomma }}</strong>comuni</div>
+</section>
+{% if categorie %}
+<p class="riga-categorie">{% for r in categorie %}{% if r.categorie__nome %}<span class="etichetta">{{ r.categorie__nome }} · {{ r.totale }}</span> {% endif %}{% endfor %}</p>
+{% endif %}
+<div class="barra"><span>Fatti con data {{ giorno|date:"d/m/Y" }}, per regione</span>{% include "pagine/_esporta.html" %}</div>
+{% for regione, fatti in gruppi.items %}
+<section class="regione">
+  <h2>{{ regione }} <small>{{ fatti|length }}</small></h2>
+  {% for f in fatti %}{% include "pagine/_fatto_riga.html" %}{% endfor %}
+</section>
+{% empty %}
+<p class="vuoto">Nessun fatto registrato per questo giorno. Per raccoglierli: <code>python manage.py raccogli_giorno --data {{ giorno|date:"Y-m-d" }}</code></p>
+{% endfor %}
+{% endblock %}

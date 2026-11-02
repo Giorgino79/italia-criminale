@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block titolo %}Fatti{% endblock %}
+{% block contenuto %}
+<h1>Fatti</h1>
+{% include "pagine/_filtri.html" %}
+<div class="barra"><span>{{ pagina.paginator.count }} fatti</span>{% include "pagine/_esporta.html" %}</div>
+{% for f in pagina %}{% include "pagine/_fatto_riga.html" %}{% empty %}<p class="vuoto">Nessun fatto con questi filtri.</p>{% endfor %}
+{% if pagina.has_other_pages %}
+<nav class="paginazione">
+  {% if pagina.has_previous %}<a href="?{{ qs }}&pagina={{ pagina.previous_page_number }}">← Precedenti</a>{% endif %}
+  <span>Pagina {{ pagina.number }} di {{ pagina.paginator.num_pages }}</span>
+  {% if pagina.has_next %}<a href="?{{ qs }}&pagina={{ pagina.next_page_number }}">Successivi →</a>{% endif %}
+</nav>
+{% endif %}
+{% endblock %}

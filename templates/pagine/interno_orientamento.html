@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block titolo %}Interno · orientamento testate{% endblock %}
+{% block contenuto %}
+<h1>Copertura per linea editoriale <small>(uso interno)</small></h1>
+<p class="nota">Pagina visibile solo allo staff. L'orientamento è una classificazione interna, con la fonte indicata in amministrazione per ogni testata. Testate non ancora classificate: {{ non_classificate }}.</p>
+<table>
+  <tr><th>Orientamento</th><th>Testate</th><th>Articoli di cronaca</th><th>Fatti coperti</th><th>% articoli che indicano la cittadinanza</th></tr>
+  {% for r in righe %}<tr><td>{{ r.orientamento }}</td><td>{{ r.testate }}</td><td>{{ r.articoli }}</td><td>{{ r.fatti }}</td><td>{{ r.quota_cittadinanza_indicata|default:"—" }}</td></tr>
+  {% empty %}<tr><td colspan="5" class="vuoto">Nessun articolo elaborato.</td></tr>{% endfor %}
+</table>
+{% endblock %}

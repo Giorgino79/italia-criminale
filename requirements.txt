@@ -1,0 +1,2 @@
+# Usato da Heroku: le dipendenze sono in requirements/base.txt
+-r requirements/base.txt

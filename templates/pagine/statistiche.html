@@ -1,0 +1,68 @@
+{% extends "base.html" %}{% load humanize %}
+{% block titolo %}Statistiche{% endblock %}
+{% block contenuto %}
+<h1>Statistiche</h1>
+{% include "pagine/_filtri.html" %}
+<div class="barra"><span>{{ riepilogo.fatti }} fatti nel periodo selezionato</span>{% include "pagine/_esporta.html" %}</div>
+<section class="grafico"><h2>Fatti per giorno</h2><canvas id="g-giorni" height="90"></canvas></section>
+<section class="grafico"><h2>Fatti per reato</h2><canvas id="g-categorie" height="120"></canvas></section>
+<div class="tre-colonne">
+  <section><h2>Per regione</h2><table><tr><th>Regione</th><th>Fatti</th></tr>
+    {% for r in regioni %}<tr><td>{{ r.comune__provincia__regione__nome }}</td><td>{{ r.totale }}</td></tr>{% empty %}<tr><td colspan="2" class="vuoto">—</td></tr>{% endfor %}</table></section>
+  <section><h2>Per città</h2><table><tr><th>Comune</th><th>Fatti</th><th title="Fatti ogni 100.000 residenti">/100k</th></tr>
+    {% for r in comuni %}<tr><td>{{ r.comune__nome }} <small>{{ r.comune__provincia__sigla }}</small></td><td>{{ r.totale }}</td><td>{{ r.tasso|default:"—" }}</td></tr>{% empty %}<tr><td colspan="3" class="vuoto">—</td></tr>{% endfor %}</table></section>
+  <section><h2>Per quartiere</h2><table><tr><th>Quartiere</th><th>Fatti</th></tr>
+    {% for r in quartieri %}<tr><td>{{ r.quartiere__nome }} <small>{{ r.quartiere__comune__nome }}</small></td><td>{{ r.totale }}</td></tr>{% empty %}<tr><td colspan="2" class="vuoto">—</td></tr>{% endfor %}</table></section>
+</div>
+<h2>Esiti giudiziari</h2>
+<div class="numeri">
+  <div><strong>{{ esiti.quota_con_esito|default:"—" }}{% if esiti.quota_con_esito is not None %}%{% endif %}</strong>procedimenti con esito noto</div>
+  <div><strong>{{ esiti.condanne }}</strong>condanne</div>
+  <div><strong>{{ esiti.assoluzioni }}</strong>assoluzioni</div>
+  <div><strong>{{ esiti.archiviazioni }}</strong>archiviazioni</div>
+  <div><strong>{{ esiti.in_attesa_da_oltre }}</strong>in attesa da oltre {{ esiti.mesi_attesa }} mesi</div>
+</div>
+<p class="nota">I giornali riportano gli arresti molto più spesso delle sentenze: un esito "non noto" non significa che il processo non ci sia stato. <a href="{% url 'elenco_fatti' %}?esito=in_attesa">Vedi i fatti in attesa di esito</a></p>
+
+<div class="due-colonne">
+  <section>
+    <h2>Fatti più ripresi</h2>
+    <table><tr><th>Fatto</th><th>Testate</th><th>Articoli</th></tr>
+    {% for f in piu_ripresi %}<tr><td><a href="{% url 'dettaglio_fatto' f.pk %}">{{ f.sintesi|truncatechars:70 }}</a></td><td>{{ f.n_testate }}</td><td>{{ f.n_articoli }}</td></tr>{% empty %}<tr><td colspan="3" class="vuoto">—</td></tr>{% endfor %}</table>
+  </section>
+  <section>
+    <h2>Quante testate per fatto</h2>
+    <table><tr><th>Riportato da</th><th>Fatti</th></tr>
+    {% for r in copertura %}<tr><td>{{ r.fascia }}</td><td>{{ r.totale }}</td></tr>{% endfor %}</table>
+  </section>
+</div>
+
+<h2>Cittadinanza degli autori, come riportata dai giornali</h2>
+<p class="nota avviso-forte">La cittadinanza è indicata solo in <strong>{{ cittadinanza.quota_indicata|default:"0" }}%</strong> dei fatti. I giornali la citano in modo selettivo (più spesso quando è straniera), quindi queste quote descrivono la cronaca, non chi commette i reati. Per i dati ufficiali sui denunciati per cittadinanza fanno fede ISTAT e Ministero dell'Interno.</p>
+<div class="due-colonne">
+  <section>
+    <table><tr><th>Cittadinanza</th><th>Fatti</th><th>% su tutti</th><th>% sugli indicati</th></tr>
+    {% for r in cittadinanza.righe %}<tr><td>{{ r.etichetta }}</td><td>{{ r.totale }}</td><td>{{ r.quota_su_tutti|default:"—" }}</td><td>{{ r.quota_su_indicati|default:"—" }}</td></tr>{% endfor %}</table>
+  </section>
+  <section>
+    <h3>Per reato</h3>
+    <table><tr><th>Reato</th><th>% indicata</th><th>% straniera tra gli indicati</th></tr>
+    {% for r in cittadinanza_categorie %}<tr><td>{{ r.categorie__nome }}</td><td>{{ r.quota_indicata|default:"—" }}</td><td>{{ r.quota_straniera|default:"—" }}</td></tr>{% endfor %}</table>
+  </section>
+</div>
+<h3>Per regione, confrontata con i residenti</h3>
+<table><tr><th>Regione</th><th>Fatti</th><th>% indicata</th><th>% straniera nei fatti (indicati)</th><th>% stranieri tra i residenti</th></tr>
+{% for r in cittadinanza_regioni %}<tr><td>{{ r.regione }}</td><td>{{ r.totale }}</td><td>{{ r.quota_indicata|default:"—" }}</td><td>{{ r.quota_straniera_fatti|default:"—" }}</td><td>{{ r.quota_straniera_residenti|default:"—" }}</td></tr>{% empty %}<tr><td colspan="5" class="vuoto">—</td></tr>{% endfor %}</table>
+<p class="nota">Le quote si calcolano solo con almeno 5 fatti con cittadinanza indicata. I residenti stranieri non coincidono con i presenti (turisti, lavoratori, persone senza residenza).</p>
+
+<p class="nota">I confronti tra zone dipendono dalla copertura delle testate locali e dalla popolazione presente, non solo residente. Vedi la <a href="{% url 'metodologia' %}">metodologia</a>.</p>
+{% endblock %}
+{% block script %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+  const dati = {{ dati_grafici|safe }};
+  const colore = getComputedStyle(document.documentElement).getPropertyValue('--accento').trim() || '#b3261e';
+  new Chart(document.getElementById('g-giorni'), {type: 'line', data: {labels: dati.giorni.map(d => d.x), datasets: [{data: dati.giorni.map(d => d.y), borderColor: colore, pointRadius: 0, tension: .2}]}, options: {plugins: {legend: {display: false}}, scales: {y: {beginAtZero: true}}}});
+  new Chart(document.getElementById('g-categorie'), {type: 'bar', data: {labels: dati.categorie.map(d => d.x), datasets: [{data: dati.categorie.map(d => d.y), backgroundColor: colore}]}, options: {indexAxis: 'y', plugins: {legend: {display: false}}}});
+</script>
+{% endblock %}

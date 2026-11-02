@@ -1,0 +1,9 @@
+<form class="filtri" method="get">
+  {% for campo in filtro.form %}
+    <label>{{ campo.label }}{{ campo }}</label>
+  {% endfor %}
+  <div class="filtri__azioni">
+    <button type="submit">Filtra</button>
+    <a href="?">Azzera</a>
+  </div>
+</form>

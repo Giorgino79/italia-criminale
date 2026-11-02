@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block titolo %}Metodologia{% endblock %}
+{% block contenuto %}
+<article class="testo">
+<h1>Come leggere i dati</h1>
+<h2>Cosa misuriamo</h2>
+<p>Questo osservatorio conta i <strong>fatti di reato riportati dai quotidiani online italiani</strong>. Non conta i reati commessi: molti reati non vengono denunciati, e molti di quelli denunciati non finiscono sui giornali. Per i reati denunciati le fonti di riferimento restano ISTAT e Ministero dell'Interno.</p>
+<h2>Le fonti</h2>
+<p>Ogni fatto mostra gli articoli da cui deriva, con link, testata e data. Registriamo anche gli aggiornamenti successivi degli articoli, perché le prime notizie su un fatto sono spesso incomplete o vengono corrette.</p>
+<h2>Dall'articolo al fatto</h2>
+<p>Più articoli sullo stesso episodio vengono uniti in un unico fatto: le statistiche contano i fatti, non gli articoli. Il raggruppamento usa luogo, data, tipo di reato e somiglianza del testo; i casi incerti sono controllati da una persona.</p>
+<h2>Come classifichiamo</h2>
+<p>La categoria di reato è una <strong>stima giornalistica</strong> fatta con l'aiuto dell'intelligenza artificiale, non una qualificazione giuridica. Ogni classificazione riporta un livello di confidenza e la frase della fonte che la giustifica.</p>
+<h2>Dove</h2>
+<p>Un fatto è collocato al livello di dettaglio che la fonte consente: indirizzo, via, quartiere o solo comune. I fatti avvenuti in abitazioni private non compaiono sulla mappa.</p>
+<h2>Perché i confronti tra zone vanno letti con cautela</h2>
+<ul>
+  <li><strong>Copertura diversa</strong>: alcune città hanno testate locali molto attive, altre quasi nessuna.</li>
+  <li><strong>Notiziabilità</strong>: i reati violenti o insoliti sono raccontati molto più di truffe o violenza domestica.</li>
+  <li><strong>Popolazione</strong>: centri storici, stazioni e zone della movida hanno una popolazione presente molto superiore a quella residente.</li>
+  <li><strong>Andamento nel tempo</strong>: un aumento può dipendere da una nuova testata monitorata o da maggiore attenzione mediatica.</li>
+</ul>
+<h2>Presunzione di innocenza</h2>
+<p>Un arresto, una denuncia o una misura cautelare non sono una condanna. Non pubblichiamo nomi, foto o altri dati che permettano di identificare indagati, vittime o testimoni.</p>
+<h2>Correzioni</h2>
+<p>Chiunque può segnalare un errore dalla scheda di ogni fatto; le correzioni restano visibili nella cronologia.</p>
+<h2>Testate monitorate</h2>
+<ul>{% for t in testate %}<li><a href="{{ t.url_home }}" rel="noopener">{{ t.nome }}</a> <small>{{ t.get_tipo_display|lower }}</small></li>{% empty %}<li>Elenco in preparazione.</li>{% endfor %}</ul>
+</article>
+{% endblock %}

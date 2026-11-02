@@ -1,0 +1,32 @@
+# --- Framework ---
+Django>=5.2,<5.3              # LTS, compatibile con Python 3.10
+django-environ>=0.11          # configurazione da file .env
+djangorestframework>=3.15     # API pubblica in sola lettura
+django-filter>=24.0           # filtri per data, reato, città, regione
+
+# --- Database ---
+psycopg[binary]>=3.2          # PostgreSQL (in sviluppo si usa SQLite)
+
+# --- Raccolta e analisi articoli ---
+feedparser>=6.0               # lettura feed RSS/Atom
+httpx>=0.27                   # richieste HTTP
+beautifulsoup4>=4.12          # parsing HTML e sitemap
+lxml>=5.0
+lxml_html_clean>=0.4         # richiesto da trafilatura con lxml recente
+trafilatura>=1.12             # estrazione del testo principale dell'articolo
+rapidfuzz>=3.9                # somiglianza testi per la deduplicazione
+python-dateutil>=2.9
+anthropic>=0.40               # estrazione strutturata con LLM
+
+# --- Geolocalizzazione ---
+geopy>=2.4                    # Nominatim / OpenStreetMap
+
+# --- Dati, statistiche, esportazioni ---
+pandas>=2.2                   # aggregazioni statistiche
+openpyxl>=3.1                 # file Excel .xlsx
+reportlab>=4.2                # file PDF
+matplotlib>=3.9               # grafici da inserire nei PDF
+
+# --- Produzione ---
+whitenoise>=6.7               # file statici
+gunicorn>=23.0                # server WSGI

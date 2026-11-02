@@ -1,0 +1,21 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+db.sqlite3
+staticfiles/
+media/
+.pytest_cache/
+.ruff_cache/
+_to_delete/
+documenti/~$*
+*.log
+# file di lavoro non usati dal sito
+Senza nome 1.pdf
+static/img/openart-*.png
+# documenti di lavoro e file di progetto: restano sul computer, non nel repository
+/*.pdf
+/*.xlsx
+/*.png
+documenti/
+.~lock.*

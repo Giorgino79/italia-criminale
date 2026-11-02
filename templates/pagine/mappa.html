@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block titolo %}Mappa{% endblock %}
+{% block head %}<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">{% endblock %}
+{% block contenuto %}
+<h1>Mappa</h1>
+{% include "pagine/_filtri.html" %}
+<div id="mappa"></div>
+<p class="nota">Ogni punto è collocato con la precisione disponibile nella fonte. I fatti avvenuti in abitazioni private non sono mostrati sulla mappa.</p>
+{% endblock %}
+{% block script %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+  const punti = {{ punti|safe }};
+  const mappa = L.map('mappa').setView([42.5, 12.5], 6);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '&copy; OpenStreetMap'}).addTo(mappa);
+  const esc = s => s.replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+  punti.forEach(p => L.circleMarker([p.lat, p.lon], {radius: 6, color: '#b3261e', weight: 1, fillOpacity: .6})
+    .bindPopup(`<small>${p.data}</small><br><a href="/fatti/${p.id}/">${esc(p.sintesi)}</a>`).addTo(mappa));
+</script>
+{% endblock %}

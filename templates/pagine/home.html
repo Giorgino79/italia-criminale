@@ -1,0 +1,24 @@
+{% extends "base.html" %}{% load humanize %}
+{% block contenuto %}
+<section class="apertura">
+  <h1>La cronaca dei reati in Italia, fatto per fatto, con le fonti.</h1>
+  <p>Ogni giorno leggiamo {{ testate }} quotidian{{ testate|pluralize:"o,i" }} online, uniamo gli articoli che raccontano lo stesso episodio e li classifichiamo per reato e luogo.</p>
+</section>
+<section class="numeri">
+  <div><strong>{{ riepilogo.fatti|intcomma }}</strong>fatti</div>
+  <div><strong>{{ riepilogo.aggressioni|intcomma }}</strong>aggressioni</div>
+  <div><strong>{{ riepilogo.arresti|intcomma }}</strong>arresti</div>
+  <div><strong>{{ riepilogo.comuni|intcomma }}</strong>comuni</div>
+</section>
+<div class="due-colonne">
+  <section>
+    <h2>Ultimi fatti</h2>
+    {% for f in ultimi %}{% include "pagine/_fatto_riga.html" %}{% empty %}<p class="vuoto">Nessun fatto ancora registrato. Aggiungi le testate dall'amministrazione e avvia la raccolta.</p>{% endfor %}
+    <p><a href="{% url 'elenco_fatti' %}">Tutti i fatti →</a></p>
+  </section>
+  <aside>
+    <h2>Reati più riportati</h2>
+    <ol class="classifica">{% for r in categorie %}{% if r.categorie__nome %}<li><span>{{ r.categorie__nome }}</span><strong>{{ r.totale }}</strong></li>{% endif %}{% endfor %}</ol>
+  </aside>
+</div>
+{% endblock %}

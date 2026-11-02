@@ -1,0 +1,40 @@
+{% load static %}<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titolo %}Italia Criminale{% endblock %} · osservatorio sulla cronaca dei reati</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/sito.css' %}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <header class="banner">
+    <a class="banner__link" href="{% url 'home' %}" aria-label="Italia Criminale, torna alla home">
+      <span class="visivamente-nascosto">Italia Criminale</span>
+    </a>
+  </header>
+  {% with pagina_attiva=request.resolver_match.url_name %}
+  <nav class="menu" aria-label="Sezioni">
+    <div class="contenitore menu__riga">
+      <a href="{% url 'home' %}"{% if pagina_attiva == "home" %} aria-current="page"{% endif %}>Home</a>
+      <a href="{% url 'fatti_del_giorno' %}"{% if pagina_attiva == "fatti_del_giorno" or pagina_attiva == "fatti_del_giorno_data" %} aria-current="page"{% endif %}>Giorno per giorno</a>
+      <a href="{% url 'elenco_fatti' %}"{% if pagina_attiva == "elenco_fatti" or pagina_attiva == "dettaglio_fatto" %} aria-current="page"{% endif %}>Fatti</a>
+      <a href="{% url 'statistiche' %}"{% if pagina_attiva == "statistiche" %} aria-current="page"{% endif %}>Statistiche</a>
+      <a href="{% url 'mappa' %}"{% if pagina_attiva == "mappa" %} aria-current="page"{% endif %}>Mappa</a>
+      <a href="{% url 'metodologia' %}"{% if pagina_attiva == "metodologia" %} aria-current="page"{% endif %}>Metodologia</a>
+    </div>
+  </nav>
+  {% endwith %}
+  <p class="contenitore avviso">Osservatorio sulla <strong>cronaca</strong> dei reati: i numeri contano i fatti riportati dai giornali, non i reati commessi. <a href="{% url 'metodologia' %}">Come leggere i dati</a></p>
+  <main class="contenitore">
+    {% if messages %}{% for m in messages %}<p class="messaggio">{{ m }}</p>{% endfor %}{% endif %}
+    {% block contenuto %}{% endblock %}
+  </main>
+  <footer class="piede contenitore">
+    <p>Ogni fatto riporta le fonti originali. Un arresto o una denuncia non sono una condanna. Segnala un errore dalla scheda del fatto.</p>
+  </footer>
+  {% block script %}{% endblock %}
+</body>
+</html>

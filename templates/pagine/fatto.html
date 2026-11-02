@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block titolo %}{{ fatto.sintesi|truncatechars:60 }}{% endblock %}
+{% block contenuto %}
+<p class="briciole"><a href="{% url 'elenco_fatti' %}">Fatti</a> / scheda</p>
+<h1>{{ fatto.sintesi }}</h1>
+<dl class="scheda">
+  <dt>Data</dt><dd>{{ fatto.data_evento|date:"j F Y"|default:"non indicata" }}</dd>
+  <dt>Reati (stima)</dt><dd>{% for c in fatto.categorie.all %}{{ c.nome }} <small>({{ c.riferimento_normativo|default:"—" }})</small>{% if not forloop.last %}, {% endif %}{% endfor %}</dd>
+  <dt>Fase procedurale</dt><dd>{{ fatto.get_fase_display }}</dd>
+  <dt>Luogo</dt><dd>{{ fatto.luogo_testo|default:"" }}{% if fatto.quartiere %} · {{ fatto.quartiere.nome }}{% endif %}{% if fatto.comune %} · {{ fatto.comune }} ({{ fatto.regione }}){% endif %} <small>precisione: {{ fatto.get_precisione_display|lower }}</small></dd>
+  <dt>Contesto</dt><dd>{{ fatto.get_contesto_display }}{% if fatto.aggressione %} · aggressione{% endif %}{% if fatto.arma != "non_specificata" %} · arma: {{ fatto.get_arma_display|lower }}{% endif %}</dd>
+  {% if fatto.esito_manifestazione %}<dt>Manifestazione</dt><dd>{{ fatto.get_esito_manifestazione_display }}</dd>{% endif %}
+  <dt>Classificazione</dt><dd>Confidenza {{ fatto.get_confidenza_display|lower }} · {{ fatto.get_stato_revisione_display|lower }}</dd>
+</dl>
+{% if fatto.evidenza %}<blockquote class="evidenza">«{{ fatto.evidenza }}»<cite>Evidenza dalla fonte</cite></blockquote>{% endif %}
+
+<h2>Fonti <small>· {{ fatto.n_testate }} testat{{ fatto.n_testate|pluralize:"a,e" }}, {{ fatto.n_articoli }} articol{{ fatto.n_articoli|pluralize:"o,i" }}</small></h2>
+{% for testata, collegamenti in per_testata.items %}
+<section class="fonti-testata">
+  <h3>{{ testata.nome }} <small>{{ collegamenti|length }} articol{{ collegamenti|length|pluralize:"o,i" }}</small></h3>
+  <ul class="fonti">
+  {% for fa in collegamenti %}
+    <li>
+      <a href="{{ fa.articolo.url }}" rel="noopener nofollow" target="_blank">{{ fa.articolo.titolo }}</a>
+      <small>{{ fa.articolo.pubblicato_il|date:"d/m/Y H:i" }} · {{ fa.get_ruolo_display|lower }}
+      {% with n=fa.articolo.versioni.count %}{% if n > 1 %} · {{ n }} versioni rilevate{% endif %}{% endwith %}</small>
+    </li>
+  {% endfor %}
+  </ul>
+</section>
+{% endfor %}
+
+<h2>Cronologia del procedimento</h2>
+<ol class="cronologia">
+  <li><small>{{ fatto.data_evento|date:"d/m/Y"|default:"data n.d." }}</small> Fatto riportato · {{ fatto.eventi.first.get_fase_precedente_display|default:fatto.get_fase_display }}</li>
+  {% for e in eventi %}
+  <li><small>{{ e.data_riferimento|default:e.data|date:"d/m/Y" }}</small> {{ e.descrizione }}{% if e.articolo %} · <a href="{{ e.articolo.url }}" rel="noopener nofollow" target="_blank">{{ e.articolo.testata }}</a>{% endif %}</li>
+  {% endfor %}
+</ol>
+{% if fatto.in_attesa_di_esito %}
+<p class="nota">Esito giudiziario non ancora noto. Gli sviluppi successivi, anche a distanza di anni, vengono collegati a questa scheda quando i giornali ne danno notizia. Se conosci l'esito, segnalalo qui sotto con la fonte.</p>
+{% endif %}
+
+<details class="segnala">
+  <summary>Segnala un errore</summary>
+  <form method="post">{% csrf_token %}{{ form.as_p }}<button type="submit">Invia</button></form>
+</details>
+{% endblock %}
