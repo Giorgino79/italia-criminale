@@ -2,6 +2,7 @@
 
 Se la variabile ACCESSO_PASSWORD è impostata, tutto il sito chiede utente e password
 (utente: ACCESSO_UTENTE, default "demo"). Senza la variabile il sito è pubblico.
+Chi ha già fatto login in /admin come staff entra senza seconda password.
 """
 import base64
 import hmac
@@ -17,6 +18,9 @@ class AccessoDemoMiddleware:
     def __call__(self, request):
         password = settings.ACCESSO_PASSWORD
         if not password or request.path.startswith("/admin/"):
+            return self.get_response(request)
+        utente_django = getattr(request, "user", None)
+        if utente_django is not None and utente_django.is_authenticated and utente_django.is_staff:
             return self.get_response(request)
         intestazione = request.META.get("HTTP_AUTHORIZATION", "")
         if intestazione.startswith("Basic "):

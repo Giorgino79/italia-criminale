@@ -6,6 +6,16 @@
   <title>{% block titolo %}Italia Criminale{% endblock %} · osservatorio sulla cronaca dei reati</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="icon" href="{% static 'favicon.ico' %}" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/favicon-32.png' %}">
+  <link rel="apple-touch-icon" href="{% static 'img/apple-touch-icon.png' %}">
+  <meta name="theme-color" content="#141312">
+  <meta name="description" content="Osservatorio sulla cronaca dei reati in Italia: fatti, fonti e statistiche dai quotidiani online.">
+  <meta property="og:site_name" content="Italia Criminale">
+  <meta property="og:title" content="{% block og_titolo %}Italia Criminale{% endblock %}">
+  <meta property="og:description" content="La cronaca dei reati in Italia, fatto per fatto, con le fonti.">
+  <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/bandiera-titolo.jpg' %}">
+  <meta property="og:type" content="website">
   <link rel="stylesheet" href="{% static 'css/sito.css' %}">
   {% block head %}{% endblock %}
 </head>
