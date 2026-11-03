@@ -11,6 +11,7 @@ from apps.fatti.filtri import filtra
 from apps.fatti.models import Fatto
 from apps.fonti.models import Testata
 
+from .avvisi import avvisa_segnalazione
 from .forms import SegnalazioneForm
 
 
@@ -43,6 +44,7 @@ def dettaglio_fatto(request, pk):
         segnalazione = form.save(commit=False)
         segnalazione.fatto = fatto
         segnalazione.save()
+        avvisa_segnalazione(request, segnalazione)
         messages.success(request, "Grazie, la segnalazione è stata registrata.")
         return redirect("dettaglio_fatto", pk=pk)
     fonti = fatto.fattoarticolo_set.select_related("articolo__testata").order_by("articolo__testata__nome", "articolo__pubblicato_il")

@@ -140,6 +140,17 @@ LOGGING = {
     "loggers": {"apps": {"handlers": ["console"], "level": env("LOG_LEVEL", default="INFO")}},
 }
 
+# --- Email ---
+# EMAIL_URL, es. con Gmail: smtp+tls://indirizzo%40gmail.com:PASSWORD-PER-APP@smtp.gmail.com:587
+# Senza EMAIL_URL le email vengono stampate nel terminale (utile in locale).
+if env("EMAIL_URL", default=""):
+    vars().update(env.email_url("EMAIL_URL"))
+else:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="Italia Criminale <noreply@localhost>")
+# Chi riceve l'avviso a ogni segnalazione di errore (più indirizzi separati da virgola)
+SEGNALAZIONI_EMAIL = env.list("SEGNALAZIONI_EMAIL", default=[])
+
 # Produzione (Heroku): HTTPS dietro il proxy
 CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
 if not DEBUG:
