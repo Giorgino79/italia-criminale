@@ -6,8 +6,12 @@
       {% for c in f.categorie.all %}<span class="etichetta">{{ c.nome }}</span>{% endfor %}
       <span>{{ f.get_fase_display }}</span>
       {% if f.comune %}<span>{{ f.comune }} ({{ f.comune.provincia.sigla }}){% if f.quartiere %} · {{ f.quartiere.nome }}{% endif %}</span>{% elif f.provincia %}<span>prov. di {{ f.provincia.nome }}</span>{% endif %}
-      {% if f.n_testate %}<span class="copertura" title="{{ f.n_articoli }} articol{{ f.n_articoli|pluralize:"o,i" }}">{{ f.n_testate }} testat{{ f.n_testate|pluralize:"a,e" }}</span>{% endif %}
       {% if f.confidenza == "bassa" %}<span class="incerto">classificazione incerta</span>{% endif %}
     </div>
+    {% if f.n_articoli > 1 %}
+    {% with altri=f.n_articoli|add:"-1" %}
+    <a class="altri-articoli" href="{% url 'dettaglio_fatto' f.pk %}#fonti">+ altr{{ altri|pluralize:"o,i" }} {{ altri }} articol{{ altri|pluralize:"o,i" }} per questo fatto{% if f.n_testate > 1 %} · {{ f.n_testate }} testate{% endif %}</a>
+    {% endwith %}
+    {% endif %}
   </div>
 </article>

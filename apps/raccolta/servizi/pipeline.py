@@ -104,20 +104,21 @@ def _registra_fatto(articolo: Articolo, dati: dict, testo_articolo: str) -> Fatt
     nuova_fase = dati.get("fase")
     data_sviluppo = _data(dati.get("data_sviluppo")) or data_articolo
     e_seguito = bool(dati.get("e_seguito")) or nuova_fase in FASI_GIUDIZIARIE
+    confronto = f"{articolo.titolo}\n{dati.get('sintesi', '')}"
 
     # 1) articolo già collegato (nuova versione dello stesso pezzo)
     fatto = articolo.fatti.first()
     # 2) seguito giudiziario di un fatto vecchio, anche di anni prima
     if fatto is None and e_seguito:
         fatto = deduplica.trova_fatto_per_seguito(
-            comune=comune, provincia=provincia, categorie_slug=slugs, testo_confronto=dati.get("sintesi", ""),
+            comune=comune, provincia=provincia, categorie_slug=slugs, testo_confronto=confronto,
             data_fatto_originale=_data_originale(dati.get("data_fatto_originale")), data_limite=data_articolo,
         )
     # 3) stesso episodio raccontato da un'altra testata nei giorni vicini
     data_evento = _data(dati.get("data_evento")) or data_articolo
     if fatto is None and not e_seguito:
         fatto = deduplica.trova_fatto_esistente(
-            comune=comune, provincia=provincia, data_evento=data_evento, categorie_slug=slugs, testo_confronto=dati.get("sintesi", ""),
+            comune=comune, provincia=provincia, data_evento=data_evento, categorie_slug=slugs, testo_confronto=confronto,
         )
 
     if fatto is None:

@@ -14,7 +14,7 @@
 </dl>
 {% if fatto.evidenza %}<blockquote class="evidenza">«{{ fatto.evidenza }}»<cite>Evidenza dalla fonte</cite></blockquote>{% endif %}
 
-<h2>Fonti <small>· {{ fatto.n_testate }} testat{{ fatto.n_testate|pluralize:"a,e" }}, {{ fatto.n_articoli }} articol{{ fatto.n_articoli|pluralize:"o,i" }}</small></h2>
+<h2 id="fonti">Fonti <small>· {{ fatto.n_testate }} testat{{ fatto.n_testate|pluralize:"a,e" }}, {{ fatto.n_articoli }} articol{{ fatto.n_articoli|pluralize:"o,i" }}</small></h2>
 {% for testata, collegamenti in per_testata.items %}
 <section class="fonti-testata">
   <h3>{{ testata.nome }} <small>{{ collegamenti|length }} articol{{ collegamenti|length|pluralize:"o,i" }}</small></h3>

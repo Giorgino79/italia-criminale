@@ -47,7 +47,18 @@ class FattoAdmin(admin.ModelAdmin):
     filter_horizontal = ["categorie"]
     autocomplete_fields = ["provincia", "comune", "quartiere"]
     inlines = [FonteInline, EventoInline]
-    actions = ["segna_verificato"]
+    actions = ["segna_verificato", "unisci_fatti"]
+
+    @admin.action(description="Unisci i fatti selezionati (stesso episodio)")
+    def unisci_fatti(self, request, queryset):
+        from .servizi import unisci
+
+        fatti = list(queryset.order_by("creato_il"))
+        if len(fatti) < 2:
+            self.message_user(request, "Seleziona almeno due fatti.", level="warning")
+            return
+        principale = unisci(fatti[0], fatti[1:])
+        self.message_user(request, f"Uniti {len(fatti)} fatti nel #{principale.pk}: «{principale.sintesi[:80]}»")
 
     @admin.action(description="Segna come verificato")
     def segna_verificato(self, request, queryset):
