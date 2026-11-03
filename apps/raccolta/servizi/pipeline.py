@@ -95,8 +95,10 @@ def _data_originale(valore):
 
 def _registra_fatto(articolo: Articolo, dati: dict, testo_articolo: str) -> Fatto:
     testo_completo = f"{articolo.titolo}\n{testo_articolo}"
-    comune = luoghi.trova_comune(dati.get("comune"), testo_completo, articolo.testata)
+    comune, provincia, area = luoghi.trova_luogo(dati.get("comune"), articolo.titolo, testo_articolo, articolo.testata)
     quartiere = luoghi.trova_quartiere(comune, testo_completo)
+    if not dati.get("luogo_testo") and area:
+        dati["luogo_testo"] = area
     data_articolo = timezone.localtime(articolo.pubblicato_il).date() if articolo.pubblicato_il else None
     slugs = dati.get("categorie") or ["altro"]
     nuova_fase = dati.get("fase")
@@ -108,14 +110,14 @@ def _registra_fatto(articolo: Articolo, dati: dict, testo_articolo: str) -> Fatt
     # 2) seguito giudiziario di un fatto vecchio, anche di anni prima
     if fatto is None and e_seguito:
         fatto = deduplica.trova_fatto_per_seguito(
-            comune=comune, categorie_slug=slugs, testo_confronto=dati.get("sintesi", ""),
+            comune=comune, provincia=provincia, categorie_slug=slugs, testo_confronto=dati.get("sintesi", ""),
             data_fatto_originale=_data_originale(dati.get("data_fatto_originale")), data_limite=data_articolo,
         )
     # 3) stesso episodio raccontato da un'altra testata nei giorni vicini
     data_evento = _data(dati.get("data_evento")) or data_articolo
     if fatto is None and not e_seguito:
         fatto = deduplica.trova_fatto_esistente(
-            comune=comune, data_evento=data_evento, categorie_slug=slugs, testo_confronto=dati.get("sintesi", ""),
+            comune=comune, provincia=provincia, data_evento=data_evento, categorie_slug=slugs, testo_confronto=dati.get("sintesi", ""),
         )
 
     if fatto is None:
@@ -123,12 +125,13 @@ def _registra_fatto(articolo: Articolo, dati: dict, testo_articolo: str) -> Fatt
             # Seguito di un fatto che non abbiamo in archivio: lo registriamo con la data originale se nota
             originale = _data_originale(dati.get("data_fatto_originale"))
             data_evento = originale if isinstance(originale, date) else None
-        lat, lon, precisione = luoghi.geocodifica(dati.get("luogo_testo"), comune)
+        lat, lon, precisione = luoghi.geocodifica(dati.get("luogo_testo") if comune else None, comune, provincia)
         fatto = Fatto.objects.create(
             sintesi=dati.get("sintesi", articolo.titolo)[:300],
             fase=nuova_fase or "notizia",
             data_evento=data_evento,
             data_ultimo_sviluppo=data_sviluppo if e_seguito else None,
+            provincia=provincia,
             comune=comune,
             quartiere=quartiere,
             luogo_testo=(dati.get("luogo_testo") or "")[:300],

@@ -47,12 +47,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "apps.pagine.accesso.AccessoDemoMiddleware",
 ]
-
-# Anteprima protetta da password (vedi apps/pagine/accesso.py)
-ACCESSO_PASSWORD = env("ACCESSO_PASSWORD", default="")
-ACCESSO_UTENTE = env("ACCESSO_UTENTE", default="demo")
 
 ROOT_URLCONF = "config.urls"
 

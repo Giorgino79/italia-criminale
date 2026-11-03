@@ -11,7 +11,7 @@ TESTO = ("Roma, rapina nella notte a San Lorenzo: un uomo è stato aggredito e f
 
 
 def test_articolo_diventa_fatto(articolo, monkeypatch):
-    monkeypatch.setattr("apps.raccolta.servizi.luoghi.geocodifica", lambda luogo, comune: (41.9, 12.5, "quartiere"))
+    monkeypatch.setattr("apps.raccolta.servizi.luoghi.geocodifica", lambda luogo, comune, provincia=None: (41.9, 12.5, "quartiere"))
     fatto = elabora_articolo(articolo, scarica=finto_scaricatore("Rapina a San Lorenzo", TESTO))
     assert fatto is not None
     slugs = set(fatto.categorie.values_list("slug", flat=True))
@@ -23,7 +23,7 @@ def test_articolo_diventa_fatto(articolo, monkeypatch):
 
 
 def test_seconda_testata_stesso_fatto_non_duplica(articolo, dati_base, monkeypatch):
-    monkeypatch.setattr("apps.raccolta.servizi.luoghi.geocodifica", lambda luogo, comune: (41.9, 12.5, "quartiere"))
+    monkeypatch.setattr("apps.raccolta.servizi.luoghi.geocodifica", lambda luogo, comune, provincia=None: (41.9, 12.5, "quartiere"))
     articolo.pubblicato_il = timezone.now()
     articolo.save()
     primo = elabora_articolo(articolo, scarica=finto_scaricatore("Rapina a San Lorenzo", TESTO))
@@ -36,7 +36,7 @@ def test_seconda_testata_stesso_fatto_non_duplica(articolo, dati_base, monkeypat
 
 
 def test_aggiornamento_registra_versione_e_cambio_fase(articolo, monkeypatch):
-    monkeypatch.setattr("apps.raccolta.servizi.luoghi.geocodifica", lambda luogo, comune: (None, None, "comune"))
+    monkeypatch.setattr("apps.raccolta.servizi.luoghi.geocodifica", lambda luogo, comune, provincia=None: (None, None, "comune"))
     elabora_articolo(articolo, scarica=finto_scaricatore("Rapina a San Lorenzo", TESTO.replace("arrestato", "cercato")))
     fatto = elabora_articolo(articolo, scarica=finto_scaricatore("Rapina a San Lorenzo", TESTO))
     assert articolo.versioni.count() == 2

@@ -8,7 +8,7 @@
 <section class="grafico"><h2>Fatti per reato</h2><canvas id="g-categorie" height="120"></canvas></section>
 <div class="tre-colonne">
   <section><h2>Per regione</h2><table><tr><th>Regione</th><th>Fatti</th></tr>
-    {% for r in regioni %}<tr><td>{{ r.comune__provincia__regione__nome }}</td><td>{{ r.totale }}</td></tr>{% empty %}<tr><td colspan="2" class="vuoto">—</td></tr>{% endfor %}</table></section>
+    {% for r in regioni %}<tr><td>{{ r.provincia__regione__nome }}</td><td>{{ r.totale }}</td></tr>{% empty %}<tr><td colspan="2" class="vuoto">—</td></tr>{% endfor %}</table></section>
   <section><h2>Per città</h2><table><tr><th>Comune</th><th>Fatti</th><th title="Fatti ogni 100.000 residenti">/100k</th></tr>
     {% for r in comuni %}<tr><td>{{ r.comune__nome }} <small>{{ r.comune__provincia__sigla }}</small></td><td>{{ r.totale }}</td><td>{{ r.tasso|default:"—" }}</td></tr>{% empty %}<tr><td colspan="3" class="vuoto">—</td></tr>{% endfor %}</table></section>
   <section><h2>Per quartiere</h2><table><tr><th>Quartiere</th><th>Fatti</th></tr>

@@ -18,7 +18,7 @@ ARRESTO = ("Roma, rapina a San Lorenzo: un uomo aggredito con un coltello e rapi
 
 @pytest.fixture(autouse=True)
 def niente_geocoding(monkeypatch):
-    monkeypatch.setattr("apps.raccolta.servizi.luoghi.geocodifica", lambda luogo, comune: (None, None, "comune"))
+    monkeypatch.setattr("apps.raccolta.servizi.luoghi.geocodifica", lambda luogo, comune, provincia=None: (None, None, "comune"))
 
 
 def _articolo(testata, n, quando):

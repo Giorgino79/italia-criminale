@@ -18,10 +18,10 @@ class FattoFilter(django_filters.FilterSet):
         field_name="categorie", queryset=CategoriaReato.objects.all(), label="Reato", distinct=True
     )
     regione = django_filters.ModelChoiceFilter(
-        field_name="comune__provincia__regione", queryset=Regione.objects.all(), label="Regione"
+        field_name="provincia__regione", queryset=Regione.objects.all(), label="Regione"
     )
     provincia = django_filters.ModelChoiceFilter(
-        field_name="comune__provincia", queryset=Provincia.objects.all(), label="Provincia"
+        field_name="provincia", queryset=Provincia.objects.all(), label="Provincia"
     )
     comune = django_filters.ModelChoiceFilter(queryset=Comune.objects.filter(fatti__isnull=False).distinct(), label="Città")
     quartiere = django_filters.ModelChoiceFilter(queryset=Quartiere.objects.all(), label="Quartiere")

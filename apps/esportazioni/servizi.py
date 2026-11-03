@@ -84,7 +84,7 @@ def genera_excel(qs, filtri_descr: str = "") -> bytes:
            ((r["categorie__nome"], r["categorie__macro__nome"], r["totale"]) for r in statistiche.per_categoria(qs)),
            [40, 32, 10])
     foglio(wb.create_sheet("Per regione"), ["Regione", "Fatti"],
-           ((r["comune__provincia__regione__nome"], r["totale"]) for r in statistiche.per_regione(qs)), [28, 10])
+           ((r["provincia__regione__nome"], r["totale"]) for r in statistiche.per_regione(qs)), [28, 10])
     foglio(wb.create_sheet("Per città"), ["Comune", "Provincia", "Fatti", "Residenti", "Fatti ogni 100.000 residenti"],
            ((r["comune__nome"], r["comune__provincia__sigla"], r["totale"], r["comune__popolazione"],
              statistiche.tasso_per_100mila(r["totale"], r["comune__popolazione"]))

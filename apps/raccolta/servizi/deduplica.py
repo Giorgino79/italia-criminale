@@ -12,12 +12,22 @@ FINESTRA_SEGUITI_GIORNI = 365 * 12
 SOGLIA_SEGUITI = 55
 
 
-def trova_fatto_esistente(*, comune, data_evento, categorie_slug, testo_confronto) -> Fatto | None:
+def _zona(comune, provincia):
+    """Filtro sul luogo: il comune se noto, altrimenti la provincia."""
+    if comune is not None:
+        return {"comune": comune}
+    if provincia is not None:
+        return {"provincia": provincia}
+    return None
+
+
+def trova_fatto_esistente(*, comune, data_evento, categorie_slug, testo_confronto, provincia=None) -> Fatto | None:
     """Cerca un fatto nello stesso comune, in date vicine, con almeno una categoria in comune
     e una descrizione simile. Restituisce il più simile sopra soglia."""
-    if comune is None or not categorie_slug:
+    zona = _zona(comune, provincia)
+    if zona is None or not categorie_slug:
         return None
-    candidati = Fatto.objects.filter(comune=comune, categorie__slug__in=categorie_slug).distinct()
+    candidati = Fatto.objects.filter(**zona, categorie__slug__in=categorie_slug).distinct()
     if data_evento:
         candidati = candidati.filter(
             data_evento__range=(data_evento - timedelta(days=FINESTRA_GIORNI), data_evento + timedelta(days=FINESTRA_GIORNI))
@@ -30,15 +40,17 @@ def trova_fatto_esistente(*, comune, data_evento, categorie_slug, testo_confront
     return migliore if punteggio_max >= SOGLIA_SOMIGLIANZA else None
 
 
-def trova_fatto_per_seguito(*, comune, categorie_slug, testo_confronto, data_fatto_originale=None, data_limite=None) -> Fatto | None:
+def trova_fatto_per_seguito(*, comune, categorie_slug, testo_confronto, data_fatto_originale=None, data_limite=None,
+                            provincia=None) -> Fatto | None:
     """Cerca il fatto originale di cui un articolo racconta gli sviluppi giudiziari.
 
     Rispetto alla deduplicazione normale la finestra temporale è di anni e si guarda solo al passato.
     Con la data (o l'anno) del fatto originale la ricerca si restringe molto.
     """
-    if comune is None or not categorie_slug:
+    zona = _zona(comune, provincia)
+    if zona is None or not categorie_slug:
         return None
-    candidati = Fatto.objects.filter(comune=comune, categorie__slug__in=categorie_slug).distinct()
+    candidati = Fatto.objects.filter(**zona, categorie__slug__in=categorie_slug).distinct()
     if data_fatto_originale:
         if len(str(data_fatto_originale)) == 4:
             candidati = candidati.filter(data_evento__year=int(data_fatto_originale))

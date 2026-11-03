@@ -20,6 +20,7 @@ def riepilogo(qs) -> dict:
         arresti=Count("id", filter=Q(fase=Fase.ARRESTO), distinct=True),
         manifestazioni=Count("id", filter=~Q(esito_manifestazione=""), distinct=True),
         comuni=Count("comune", distinct=True),
+        province=Count("provincia", distinct=True),
     )
 
 
@@ -42,7 +43,11 @@ def per_categoria(qs, limite=None):
 
 
 def per_regione(qs):
-    return _conta(qs.exclude(comune=None), "comune__provincia__regione__nome")
+    return _conta(qs.exclude(provincia=None), "provincia__regione__nome")
+
+
+def per_provincia(qs, limite=30):
+    return _conta(qs.exclude(provincia=None), "provincia__nome", "provincia__sigla", limite=limite)
 
 
 def per_comune(qs, limite=30):
@@ -154,9 +159,9 @@ def cittadinanza_per_regione(qs, minimo_indicati=5):
     """Confronto tra quota straniera nei fatti (con cittadinanza indicata) e quota di stranieri tra i residenti.
     Attenzione: residenti ≠ presenti, e i giornali indicano la cittadinanza in modo selettivo."""
     righe = (
-        qs.exclude(comune=None)
-        .values("comune__provincia__regione__nome", "comune__provincia__regione__popolazione",
-                "comune__provincia__regione__popolazione_straniera")
+        qs.exclude(provincia=None)
+        .values("provincia__regione__nome", "provincia__regione__popolazione",
+                "provincia__regione__popolazione_straniera")
         .annotate(
             totale=Count("id", distinct=True),
             indicati=Count("id", filter=~Q(cittadinanza_autori__in=["non_indicata", "mista"]), distinct=True),
@@ -166,9 +171,9 @@ def cittadinanza_per_regione(qs, minimo_indicati=5):
     )
     risultato = []
     for r in righe:
-        pop, pop_str = r["comune__provincia__regione__popolazione"], r["comune__provincia__regione__popolazione_straniera"]
+        pop, pop_str = r["provincia__regione__popolazione"], r["provincia__regione__popolazione_straniera"]
         risultato.append({
-            "regione": r["comune__provincia__regione__nome"],
+            "regione": r["provincia__regione__nome"],
             "totale": r["totale"],
             "indicati": r["indicati"],
             "quota_indicata": _quota(r["indicati"], r["totale"]),

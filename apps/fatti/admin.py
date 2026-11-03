@@ -40,12 +40,12 @@ class EventoInline(admin.TabularInline):
 class FattoAdmin(admin.ModelAdmin):
     list_display = ["sintesi", "data_evento", "comune", "fase", "data_ultimo_sviluppo", "n_testate", "confidenza", "stato_revisione"]
     list_filter = ["stato_revisione", InAttesaFilter, "confidenza", "fase", "cittadinanza_autori", "categorie__macro",
-                   "comune__provincia__regione"]
+                   "provincia__regione"]
     readonly_fields = ["n_testate", "n_articoli"]
     search_fields = ["sintesi", "luogo_testo"]
     date_hierarchy = "data_evento"
     filter_horizontal = ["categorie"]
-    autocomplete_fields = ["comune", "quartiere"]
+    autocomplete_fields = ["provincia", "comune", "quartiere"]
     inlines = [FonteInline, EventoInline]
     actions = ["segna_verificato"]
 

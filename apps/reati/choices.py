@@ -6,7 +6,7 @@ class Fase(models.TextChoices):
     NOTIZIA = "notizia", "Notizia di reato"
     DENUNCIA = "denuncia", "Denuncia"
     FERMO = "fermo", "Fermo"
-    ARRESTO = "arresto", "Arresto in flagranza"
+    ARRESTO = "arresto", "Arresto"
     MISURA_CAUTELARE = "misura_cautelare", "Misura cautelare"
     RINVIO_GIUDIZIO = "rinvio_giudizio", "Rinvio a giudizio"
     CONDANNA_NON_DEF = "condanna_non_definitiva", "Condanna non definitiva"
@@ -54,6 +54,7 @@ class Precisione(models.TextChoices):
     VIA = "via", "Via"
     QUARTIERE = "quartiere", "Quartiere"
     COMUNE = "comune", "Solo comune"
+    PROVINCIA = "provincia", "Solo provincia"
     NESSUNA = "nessuna", "Non localizzato"
 
 

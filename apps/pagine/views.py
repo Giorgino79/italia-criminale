@@ -126,7 +126,7 @@ def fatti_del_giorno(request, giorno=None):
         except ValueError as e:
             raise Http404("Data non valida") from e
     qs = Fatto.objects.pubblicati().con_relazioni().filter(data_evento=giorno).order_by(
-        "comune__provincia__regione__nome", "comune__nome", "-n_testate"
+        "provincia__regione__nome", "provincia__nome", "comune__nome", "-n_testate"
     )
     gruppi = {}
     for f in qs:

@@ -5,7 +5,7 @@
     <div class="fatto__meta">
       {% for c in f.categorie.all %}<span class="etichetta">{{ c.nome }}</span>{% endfor %}
       <span>{{ f.get_fase_display }}</span>
-      {% if f.comune %}<span>{{ f.comune }}{% if f.quartiere %} · {{ f.quartiere.nome }}{% endif %}</span>{% endif %}
+      {% if f.comune %}<span>{{ f.comune }} ({{ f.comune.provincia.sigla }}){% if f.quartiere %} · {{ f.quartiere.nome }}{% endif %}</span>{% elif f.provincia %}<span>prov. di {{ f.provincia.nome }}</span>{% endif %}
       {% if f.n_testate %}<span class="copertura" title="{{ f.n_articoli }} articol{{ f.n_articoli|pluralize:"o,i" }}">{{ f.n_testate }} testat{{ f.n_testate|pluralize:"a,e" }}</span>{% endif %}
       {% if f.confidenza == "bassa" %}<span class="incerto">classificazione incerta</span>{% endif %}
     </div>

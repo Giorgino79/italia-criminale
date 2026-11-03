@@ -40,7 +40,7 @@ def test_raccogli_giorno(db, dati_base, monkeypatch):
     monkeypatch.setattr("apps.raccolta.management.commands.raccogli_giorno.leggi_feed", finto_feed)
     monkeypatch.setattr("apps.raccolta.servizi.pipeline.testo.scarica", finto_scaricatore(
         "Rapina a Roma", "ROMA – Rapina in via Tuscolana, arrestato un uomo dai carabinieri."))
-    monkeypatch.setattr("apps.raccolta.servizi.luoghi.geocodifica", lambda luogo, comune: (None, None, "comune"))
+    monkeypatch.setattr("apps.raccolta.servizi.luoghi.geocodifica", lambda luogo, comune, provincia=None: (None, None, "comune"))
     call_command("raccogli_giorno", data=date(2026, 11, 1), verbosity=0)
     fatto = Fatto.objects.get(data_evento=date(2026, 11, 1))
     assert fatto.comune.nome == "Roma" and fatto.fase == "arresto"

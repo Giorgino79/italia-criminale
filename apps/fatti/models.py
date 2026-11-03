@@ -23,7 +23,7 @@ class FattoQuerySet(models.QuerySet):
         return self.exclude(stato_revisione=Fatto.StatoRevisione.SCARTATO)
 
     def con_relazioni(self):
-        return self.select_related("comune__provincia__regione", "quartiere").prefetch_related("categorie__macro")
+        return self.select_related("comune__provincia__regione", "provincia__regione", "quartiere").prefetch_related("categorie__macro")
 
 
 class Fatto(models.Model):
@@ -38,6 +38,10 @@ class Fatto(models.Model):
     fase = models.CharField(max_length=30, choices=Fase.choices, default=Fase.NOTIZIA)
     data_evento = models.DateField(null=True, blank=True, db_index=True)
 
+    provincia = models.ForeignKey(
+        "territorio.Provincia", null=True, blank=True, on_delete=models.SET_NULL, related_name="fatti",
+        help_text="Sempre compilata se è noto il comune; da sola quando la fonte dice solo 'nel Comasco'",
+    )
     comune = models.ForeignKey("territorio.Comune", null=True, blank=True, on_delete=models.SET_NULL, related_name="fatti")
     quartiere = models.ForeignKey("territorio.Quartiere", null=True, blank=True, on_delete=models.SET_NULL, related_name="fatti")
     luogo_testo = models.CharField(max_length=300, blank=True, help_text="Luogo come citato dalla fonte")
@@ -86,7 +90,14 @@ class Fatto(models.Model):
 
     @property
     def regione(self):
-        return self.comune.provincia.regione if self.comune else None
+        if self.comune:
+            return self.comune.provincia.regione
+        return self.provincia.regione if self.provincia else None
+
+    def save(self, *args, **kwargs):
+        if self.comune_id and not self.provincia_id:
+            self.provincia_id = self.comune.provincia_id
+        super().save(*args, **kwargs)
 
     @property
     def esito_noto(self) -> bool:

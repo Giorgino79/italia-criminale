@@ -80,8 +80,7 @@ heroku git:remote -a italia-criminale
 heroku addons:create heroku-postgresql:essential-0
 heroku config:set SECRET_KEY="$(python -c 'import secrets;print(secrets.token_urlsafe(50))')" \
   DEBUG=False ALLOWED_HOSTS=.herokuapp.com \
-  CSRF_TRUSTED_ORIGINS=https://italia-criminale-XXXX.herokuapp.com \
-  ACCESSO_PASSWORD=una-password-per-la-demo
+  CSRF_TRUSTED_ORIGINS=https://italia-criminale-XXXX.herokuapp.com
 git push heroku main
 heroku run python manage.py importa_comuni
 heroku run python manage.py carica_testate
@@ -90,6 +89,5 @@ heroku run python manage.py createsuperuser
 ```
 
 - `Procfile`: a ogni rilascio applica le migrazioni e carica regioni e tassonomia.
-- `ACCESSO_PASSWORD`: finché è impostata, il sito chiede utente `demo` e password (l'amministrazione ha il suo login).
 - Raccolta automatica: add-on **Heroku Scheduler**, con `python manage.py raccogli_giorno` ogni notte
   ed `python manage.py elabora_articoli` ogni ora.

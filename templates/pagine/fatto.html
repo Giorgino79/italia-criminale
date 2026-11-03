@@ -7,7 +7,7 @@
   <dt>Data</dt><dd>{{ fatto.data_evento|date:"j F Y"|default:"non indicata" }}</dd>
   <dt>Reati (stima)</dt><dd>{% for c in fatto.categorie.all %}{{ c.nome }} <small>({{ c.riferimento_normativo|default:"—" }})</small>{% if not forloop.last %}, {% endif %}{% endfor %}</dd>
   <dt>Fase procedurale</dt><dd>{{ fatto.get_fase_display }}</dd>
-  <dt>Luogo</dt><dd>{{ fatto.luogo_testo|default:"" }}{% if fatto.quartiere %} · {{ fatto.quartiere.nome }}{% endif %}{% if fatto.comune %} · {{ fatto.comune }} ({{ fatto.regione }}){% endif %} <small>precisione: {{ fatto.get_precisione_display|lower }}</small></dd>
+  <dt>Luogo</dt><dd>{% if fatto.luogo_testo %}{{ fatto.luogo_testo }} · {% endif %}{% if fatto.quartiere %}{{ fatto.quartiere.nome }} · {% endif %}{% if fatto.comune %}{{ fatto.comune }} ({{ fatto.comune.provincia.sigla }}, {{ fatto.regione }}){% elif fatto.provincia %}provincia di {{ fatto.provincia.nome }} ({{ fatto.regione }}){% else %}non individuato{% endif %} <small>precisione: {{ fatto.get_precisione_display|lower }}</small></dd>
   <dt>Contesto</dt><dd>{{ fatto.get_contesto_display }}{% if fatto.aggressione %} · aggressione{% endif %}{% if fatto.arma != "non_specificata" %} · arma: {{ fatto.get_arma_display|lower }}{% endif %}</dd>
   {% if fatto.esito_manifestazione %}<dt>Manifestazione</dt><dd>{{ fatto.get_esito_manifestazione_display }}</dd>{% endif %}
   <dt>Classificazione</dt><dd>Confidenza {{ fatto.get_confidenza_display|lower }} · {{ fatto.get_stato_revisione_display|lower }}</dd>
