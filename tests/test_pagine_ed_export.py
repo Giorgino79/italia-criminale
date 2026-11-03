@@ -64,3 +64,13 @@ def test_api_nasconde_coordinate_abitazione(client, fatti):
 def test_api_statistiche(client, fatti):
     dati = client.get("/api/statistiche/").json()
     assert dati["riepilogo"]["fatti"] == 2
+
+
+def test_filtro_aggressione_e_mappa(client, fatti):
+    pagina = client.get("/fatti/").content.decode()
+    assert "Sconosciuto" not in pagina
+    si = client.get("/fatti/", {"aggressione": "si"}).content.decode()
+    assert "Aggressione in strada" in si and "Furto in un negozio" not in si
+    mappa = client.get("/mappa/")
+    assert "referrerPolicy" in mappa.content.decode()
+    assert mappa["Referrer-Policy"] == "strict-origin-when-cross-origin"

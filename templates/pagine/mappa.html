@@ -12,7 +12,12 @@
 <script>
   const punti = {{ punti|safe }};
   const mappa = L.map('mappa').setView([42.5, 12.5], 6);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '&copy; OpenStreetMap'}).addTo(mappa);
+  // OpenStreetMap richiede che le richieste dichiarino il sito di provenienza (Referer)
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    referrerPolicy: 'strict-origin-when-cross-origin',
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+  }).addTo(mappa);
   const esc = s => s.replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
   punti.forEach(p => L.circleMarker([p.lat, p.lon], {radius: 6, color: '#b3261e', weight: 1, fillOpacity: .6})
     .bindPopup(`<small>${p.data}</small><br><a href="/fatti/${p.id}/">${esc(p.sintesi)}</a>`).addTo(mappa));

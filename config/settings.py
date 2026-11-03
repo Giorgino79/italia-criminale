@@ -151,6 +151,9 @@ DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="Italia Criminale <norepl
 # Chi riceve l'avviso a ogni segnalazione di errore (più indirizzi separati da virgola)
 SEGNALAZIONI_EMAIL = env.list("SEGNALAZIONI_EMAIL", default=[])
 
+# Invia ad altri siti solo l'origine (es. per le mappe OpenStreetMap, che la richiedono), mai l'indirizzo completo
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+
 # Produzione (Heroku): HTTPS dietro il proxy
 CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
 if not DEBUG:

@@ -27,7 +27,9 @@ class FattoFilter(django_filters.FilterSet):
     quartiere = django_filters.ModelChoiceFilter(queryset=Quartiere.objects.all(), label="Quartiere")
     fase = django_filters.ChoiceFilter(choices=Fase.choices, label="Fase")
     contesto = django_filters.ChoiceFilter(choices=Contesto.choices, label="Contesto")
-    aggressione = django_filters.BooleanFilter(label="Aggressione")
+    aggressione = django_filters.ChoiceFilter(
+        choices=[("si", "Sì"), ("no", "No")], method="filtra_aggressione", label="Aggressione", empty_label="Tutti"
+    )
     esito = django_filters.ChoiceFilter(
         choices=[("noto", "Esito noto"), ("in_attesa", "In attesa di esito")], method="filtra_esito", label="Esito"
     )
@@ -38,6 +40,9 @@ class FattoFilter(django_filters.FilterSet):
         field_labels={"data_evento": "Data", "n_testate": "Più ripresi", "data_ultimo_sviluppo": "Ultimo sviluppo"},
         label="Ordina",
     )
+
+    def filtra_aggressione(self, queryset, name, value):
+        return queryset.filter(aggressione=(value == "si")) if value in ("si", "no") else queryset
 
     def filtra_esito(self, queryset, name, value):
         if value == "noto":
