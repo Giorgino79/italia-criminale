@@ -96,8 +96,12 @@ def trova_fatto_esistente(*, comune, data_evento, categorie_slug, testo_confront
     candidati = Fatto.objects.filter(**_zona(comune, provincia), categorie__slug__in=categorie_slug).distinct()
     if data_evento:
         finestra = (data_evento - timedelta(days=FINESTRA_GIORNI), data_evento + timedelta(days=FINESTRA_GIORNI))
-        # anche i fatti senza data registrati negli stessi giorni (es. articoli che parlano di un fatto passato)
-        candidati = candidati.filter(Q(data_evento__range=finestra) | Q(data_evento=None, creato_il__date__range=finestra))
+        # anche i fatti senza data, se i loro articoli sono usciti negli stessi giorni
+        candidati = candidati.filter(
+            Q(data_evento__range=finestra)
+            | Q(data_evento=None, articoli__pubblicato_il__date__range=finestra)
+            | Q(data_evento=None, creato_il__date__range=finestra)
+        )
     return _migliore(candidati[:200], testo_confronto, SOGLIA_SOMIGLIANZA, _escludi(comune, provincia), salta)
 
 

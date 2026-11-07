@@ -14,15 +14,15 @@
   <meta property="og:site_name" content="Italia Criminale">
   <meta property="og:title" content="{% block og_titolo %}Italia Criminale{% endblock %}">
   <meta property="og:description" content="La cronaca dei reati in Italia, fatto per fatto, con le fonti.">
-  <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/bandiera-titolo.jpg' %}">
+  <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/condivisione.jpg' %}">
   <meta property="og:type" content="website">
   <link rel="stylesheet" href="{% static 'css/sito.css' %}">
   {% block head %}{% endblock %}
 </head>
 <body>
   <header class="banner">
-    <a class="banner__link" href="{% url 'home' %}" aria-label="Italia Criminale, torna alla home">
-      <span class="visivamente-nascosto">Italia Criminale</span>
+    <a class="banner__link" href="{% url 'home' %}" aria-label="Osservatorio Reati Italia, torna alla home">
+      <span class="visivamente-nascosto">Osservatorio Reati Italia</span>
     </a>
   </header>
   {% with pagina_attiva=request.resolver_match.url_name %}

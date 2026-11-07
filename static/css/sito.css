@@ -17,9 +17,9 @@ small, .nota, .vuoto { color: var(--tenue); }
 .contenitore { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
 
 /* Fascia con la bandiera: uguale in ogni pagina */
-.banner { background: #0d0c0b url("../img/bandiera-titolo.jpg") center 47% / cover no-repeat; height: max(90px, 12.5vw); box-shadow: inset 0 -12px 18px -10px rgba(0,0,0,.6); }
+.banner { background: #0d0c0b url("../img/bandiera-osservatorio.jpg") center 49% / cover no-repeat; height: max(90px, 12.5vw); box-shadow: inset 0 -12px 18px -10px rgba(0,0,0,.6); }
 .banner__link { display: block; height: 100%; }
-@media (max-width: 800px) { .banner { background-image: url("../img/bandiera-titolo-800.jpg"); } }
+@media (max-width: 800px) { .banner { background-image: url("../img/bandiera-osservatorio-800.jpg"); } }
 .visivamente-nascosto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* Seconda barra con i link: resta visibile scorrendo */
