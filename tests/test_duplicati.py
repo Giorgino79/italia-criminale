@@ -147,3 +147,21 @@ def test_separa_articolo(dati_base, monkeypatch):
     call_command("separa_articolo", fatto=f.pk, cerca="Ciampino", verbosity=0)
     f.refresh_from_db()
     assert f.n_articoli == 1
+    assert not sbagliato.fatti.filter(pk=f.pk).exists()
+
+
+def test_separa_non_ricollega_allo_stesso_fatto(dati_base, monkeypatch):
+    """Anche se il testo somiglia, l'articolo separato a mano non torna nel fatto di origine."""
+    t = dati_base["testata"]
+    omicidio = CategoriaReato.objects.get(slug="omicidio")
+    f = Fatto.objects.create(sintesi="Omicidio Pasolini all'Idroscalo", comune=dati_base["roma"], data_evento=OGGI.date())
+    f.categorie.add(omicidio)
+    FattoArticolo.objects.create(fatto=f, articolo=_art(t, 1))
+    simile = _art(t, 2)
+    FattoArticolo.objects.create(fatto=f, articolo=simile)
+    monkeypatch.setattr("apps.raccolta.servizi.pipeline.testo.scarica", finto_scaricatore(
+        "Omicidio Pasolini all'Idroscalo, nuove indagini", "ROMA – Omicidio di Pasolini all'Idroscalo, la Procura indaga."))
+    Articolo.objects.filter(pk=simile.pk).update(titolo="Omicidio Pasolini all'Idroscalo, nuove indagini")
+    call_command("separa_articolo", fatto=f.pk, cerca="nuove indagini", verbosity=0)
+    simile.refresh_from_db()
+    assert simile.fatti.exists() and not simile.fatti.filter(pk=f.pk).exists()

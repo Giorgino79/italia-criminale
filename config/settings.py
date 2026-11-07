@@ -137,7 +137,11 @@ LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "handlers": {"console": {"class": "logging.StreamHandler"}},
-    "loggers": {"apps": {"handlers": ["console"], "level": env("LOG_LEVEL", default="INFO")}},
+    "loggers": {
+        "apps": {"handlers": ["console"], "level": env("LOG_LEVEL", default="INFO")},
+        # i ritardi del servizio mappe sono gestiti (si ripiega sul comune): niente traceback nei log
+        "geopy": {"handlers": ["console"], "level": "ERROR", "propagate": False},
+    },
 }
 
 # --- Email ---

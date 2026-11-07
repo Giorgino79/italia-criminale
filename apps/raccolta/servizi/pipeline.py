@@ -44,7 +44,8 @@ def _data(valore) -> date | None:
         return None
 
 
-def elabora_articolo(articolo: Articolo, scarica=None) -> Fatto | None:
+def elabora_articolo(articolo: Articolo, scarica=None, escludi_fatto: int | None = None) -> Fatto | None:
+    """escludi_fatto: id di un fatto a cui l'articolo NON va ricollegato (separazione manuale)."""
     scarica = scarica or testo.scarica
     try:
         contenuto = scarica(articolo.url)
@@ -83,7 +84,7 @@ def elabora_articolo(articolo: Articolo, scarica=None) -> Fatto | None:
             return None
         articolo.stato = Articolo.Stato.ELABORATO
         articolo.save()
-        return _registra_fatto(articolo, dati, contenuto["testo"])
+        return _registra_fatto(articolo, dati, contenuto["testo"], escludi_fatto)
 
 
 def _data_originale(valore):
@@ -94,7 +95,7 @@ def _data_originale(valore):
     return v if len(v) == 4 and v.isdigit() else _data(v)
 
 
-def _registra_fatto(articolo: Articolo, dati: dict, testo_articolo: str) -> Fatto:
+def _registra_fatto(articolo: Articolo, dati: dict, testo_articolo: str, escludi_fatto: int | None = None) -> Fatto:
     testo_completo = f"{articolo.titolo}\n{testo_articolo}"
     comune, provincia, area = luoghi.trova_luogo(dati.get("comune"), articolo.titolo, testo_articolo, articolo.testata)
     quartiere = luoghi.trova_quartiere(comune, testo_completo)
@@ -112,7 +113,7 @@ def _registra_fatto(articolo: Articolo, dati: dict, testo_articolo: str) -> Fatt
     # 2) seguito giudiziario di un fatto vecchio, anche di anni prima
     if fatto is None and e_seguito:
         fatto = deduplica.trova_fatto_per_seguito(
-            comune=comune, provincia=provincia, categorie_slug=slugs, testo_confronto=confronto,
+            comune=comune, provincia=provincia, categorie_slug=slugs, testo_confronto=confronto, salta=escludi_fatto,
             data_fatto_originale=_data_originale(dati.get("data_fatto_originale")), data_limite=data_articolo,
         )
     # 3) stesso episodio raccontato da un'altra testata nei giorni vicini
@@ -120,6 +121,7 @@ def _registra_fatto(articolo: Articolo, dati: dict, testo_articolo: str) -> Fatt
     if fatto is None and not e_seguito:
         fatto = deduplica.trova_fatto_esistente(
             comune=comune, provincia=provincia, data_evento=data_evento, categorie_slug=slugs, testo_confronto=confronto,
+            salta=escludi_fatto,
         )
 
     if fatto is None:

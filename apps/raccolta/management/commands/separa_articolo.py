@@ -30,7 +30,7 @@ class Command(BaseCommand):
             Articolo.objects.filter(pk=articolo.pk).update(stato=Articolo.Stato.NUOVO)
             articolo.refresh_from_db()
             articolo.versioni.all().delete()  # rielaborazione completa
-            nuovo = elabora_articolo(articolo)
+            nuovo = elabora_articolo(articolo, escludi_fatto=f.pk)
             dove = f"fatto #{nuovo.pk}" if nuovo else "non classificato come cronaca"
             self.stdout.write(f"Staccato «{articolo.titolo[:70]}» → {dove}")
         f.aggiorna_contatori()
