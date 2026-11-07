@@ -100,3 +100,50 @@ def test_riga_mostra_altri_articoli(client, dati_base):
     pagina = client.get("/").content.decode()
     assert pagina.count("Fatto ripreso") == 1
     assert "+ altri 5 articoli per questo fatto" in pagina
+
+
+def test_luoghi_non_contano_come_nomi_in_comune(dati_base):
+    t = dati_base["testata"]
+    omicidio = CategoriaReato.objects.get(slug="omicidio")
+    a = Fatto.objects.create(sintesi="Omicidio Pasolini, la Procura di Roma riapre le indagini", comune=dati_base["roma"])
+    a.categorie.add(omicidio)
+    FattoArticolo.objects.create(fatto=a, articolo=_art(t, 1))
+    from apps.raccolta.servizi.deduplica import trova_fatto_esistente
+    trovato = trova_fatto_esistente(
+        comune=dati_base["roma"], data_evento=OGGI.date(), categorie_slug=["omicidio"],
+        testo_confronto="Atterrato a Ciampino l'aereo con le salme dei militari uccisi, lutto a Roma",
+    )
+    assert trovato is None
+
+
+def test_comando_aggiorna_e_coda(dati_base, monkeypatch):
+    from apps.raccolta.servizi.coda import da_elaborare
+
+    t = dati_base["testata"]
+    errato = _art(t, 1)
+    Articolo.objects.filter(pk=errato.pk).update(stato="errore")
+    nuovo = _art(t, 2)
+    assert [a.pk for a in da_elaborare(10)] == [nuovo.pk]
+
+    monkeypatch.setattr("apps.raccolta.management.commands.aggiorna.leggi_feed", lambda testata: 0)
+    monkeypatch.setattr("apps.raccolta.servizi.pipeline.testo.scarica", finto_scaricatore(
+        "Rapina a Roma", "ROMA – Rapina in via Tuscolana, arrestato un uomo."))
+    call_command("aggiorna", verbosity=0)
+    nuovo.refresh_from_db()
+    assert nuovo.stato == "elaborato" and Fatto.objects.count() == 1
+
+
+def test_separa_articolo(dati_base, monkeypatch):
+    t = dati_base["testata"]
+    omicidio = CategoriaReato.objects.get(slug="omicidio")
+    f = Fatto.objects.create(sintesi="Omicidio Pasolini", comune=dati_base["roma"])
+    f.categorie.add(omicidio)
+    FattoArticolo.objects.create(fatto=f, articolo=_art(t, 1))
+    sbagliato = _art(t, 2)
+    Articolo.objects.filter(pk=sbagliato.pk).update(titolo="Atterrato a Ciampino l'aereo con le salme")
+    FattoArticolo.objects.create(fatto=f, articolo=sbagliato)
+    monkeypatch.setattr("apps.raccolta.servizi.pipeline.testo.scarica", finto_scaricatore(
+        "Atterrato a Ciampino l'aereo con le salme", "Cerimonia all'aeroporto con le autorità."))
+    call_command("separa_articolo", fatto=f.pk, cerca="Ciampino", verbosity=0)
+    f.refresh_from_db()
+    assert f.n_articoli == 1

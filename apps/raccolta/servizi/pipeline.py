@@ -51,7 +51,8 @@ def elabora_articolo(articolo: Articolo, scarica=None) -> Fatto | None:
     except testo.TestoNonDisponibile as e:
         articolo.stato, articolo.errore = Articolo.Stato.ERRORE, str(e)
         articolo.ultimo_controllo = timezone.now()
-        articolo.save(update_fields=["stato", "errore", "ultimo_controllo"])
+        articolo.prossimo_controllo = None
+        articolo.save(update_fields=["stato", "errore", "ultimo_controllo", "prossimo_controllo"])
         return None
 
     precedente = articolo.versioni.order_by("-controllato_il").first()

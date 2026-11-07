@@ -16,7 +16,11 @@ class Command(BaseCommand):
             testate = testate.filter(nome__iexact=testata)
         totale = 0
         for t in testate:
-            n = leggi_feed(t)
+            try:
+                n = leggi_feed(t)
+            except Exception as e:  # una testata in errore non deve fermare le altre
+                self.stdout.write(self.style.WARNING(f"{t.nome}: errore {e}"))
+                continue
             totale += n
             self.stdout.write(f"{t.nome}: {n} articoli nuovi")
         self.stdout.write(self.style.SUCCESS(f"Totale articoli nuovi: {totale}"))

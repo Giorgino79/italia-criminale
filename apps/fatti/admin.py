@@ -49,6 +49,10 @@ class FattoAdmin(admin.ModelAdmin):
     inlines = [FonteInline, EventoInline]
     actions = ["segna_verificato", "unisci_fatti"]
 
+    def save_related(self, request, form, formsets, change):
+        super().save_related(request, form, formsets, change)
+        form.instance.aggiorna_contatori()
+
     @admin.action(description="Unisci i fatti selezionati (stesso episodio)")
     def unisci_fatti(self, request, queryset):
         from .servizi import unisci

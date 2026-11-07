@@ -50,6 +50,17 @@ def nomi_propri(testo: str) -> set[str]:
     return trovati
 
 
+def nomi_di_luogo() -> set[str]:
+    """Nomi di comuni, province e regioni: indicano dove, non quale episodio."""
+    from apps.territorio.models import Comune, Provincia, Regione
+
+    nomi = {"italia", "europa", "capitale"}
+    for modello in (Comune, Provincia, Regione):
+        for nome in modello.objects.values_list("nome", flat=True):
+            nomi |= {p.lower() for p in re.findall(r"[\wÀ-ü']+", nome) if len(p) >= 4}
+    return nomi
+
+
 def somiglianza(fatto: Fatto, testo: str, escludi: set[str] = frozenset()) -> float:
     """0-140 circa: somiglianza testuale migliore + bonus per i nomi propri condivisi."""
     titoli = [fatto.sintesi] + list(fatto.articoli.values_list("titolo", flat=True)[:15])
@@ -78,6 +89,7 @@ def _escludi(comune, provincia) -> set[str]:
 
 
 def _migliore(candidati, testo, soglia, escludi, salta=None):
+    escludi = set(escludi) | nomi_di_luogo()  # una sola lettura dei luoghi per articolo
     migliore, punteggio_max = None, 0
     for fatto in candidati:
         if salta is not None and fatto.pk == salta:
