@@ -25,7 +25,7 @@ def home(request):
     qs = Fatto.objects.pubblicati().con_relazioni()
     return render(request, "pagine/home.html", {
         "riepilogo": statistiche.riepilogo(qs),
-        "ultimi": qs[:10],
+        "ultimi": qs.recenti()[:10],
         "categorie": statistiche.per_categoria(qs, limite=8),
         "testate": Testata.objects.filter(attiva=True).count(),
     })
@@ -33,7 +33,8 @@ def home(request):
 
 def elenco_fatti(request):
     filtro = filtra(request.GET)
-    pagina = Paginator(filtro.qs, 30).get_page(request.GET.get("pagina"))
+    risultati = filtro.qs if request.GET.get("ordina") else filtro.qs.recenti()
+    pagina = Paginator(risultati, 30).get_page(request.GET.get("pagina"))
     return render(request, "pagine/fatti.html", {"filtro": filtro, "pagina": pagina, "qs": _querystring(request)})
 
 
@@ -127,9 +128,12 @@ def fatti_del_giorno(request, giorno=None):
             giorno = date.fromisoformat(giorno)
         except ValueError as e:
             raise Http404("Data non valida") from e
-    qs = Fatto.objects.pubblicati().con_relazioni().filter(data_evento=giorno).order_by(
+    base = Fatto.objects.pubblicati().con_relazioni()
+    qs = base.filter(data_evento=giorno).order_by(
         "provincia__regione__nome", "provincia__nome", "comune__nome", "-n_testate"
     )
+    # notizie del giorno su fatti precedenti o senza data (processi, sentenze, anniversari)
+    sviluppi = base.filter(data_ultimo_sviluppo=giorno).exclude(data_evento=giorno).order_by("-n_testate")
     gruppi = {}
     for f in qs:
         regione = f.regione.nome if f.regione else "Luogo non individuato"
@@ -141,6 +145,7 @@ def fatti_del_giorno(request, giorno=None):
         "precedente": giorno - timedelta(days=1),
         "successivo": giorno + timedelta(days=1) if giorno < oggi else None,
         "gruppi": gruppi,
+        "sviluppi": sviluppi,
         "riepilogo": statistiche.riepilogo(qs),
         "categorie": statistiche.per_categoria(qs, limite=8),
         "qs": f"dal={giorno.isoformat()}&al={giorno.isoformat()}",

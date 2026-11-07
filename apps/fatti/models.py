@@ -22,6 +22,16 @@ class FattoQuerySet(models.QuerySet):
     def pubblicati(self):
         return self.exclude(stato_revisione=Fatto.StatoRevisione.SCARTATO)
 
+    def recenti(self):
+        """Dalla notizia più recente: ultimo sviluppo (es. sentenza) o, se manca, data del fatto.
+        I fatti senza nessuna data vanno in fondo."""
+        from django.db.models import DateField, F
+        from django.db.models.functions import Cast, Coalesce
+
+        return self.annotate(
+            data_notizia=Coalesce("data_ultimo_sviluppo", "data_evento", Cast("creato_il", DateField()))
+        ).order_by(F("data_notizia").desc(nulls_last=True), "-creato_il")
+
     def con_relazioni(self):
         return self.select_related("comune__provincia__regione", "provincia__regione", "quartiere").prefetch_related("categorie__macro")
 
@@ -83,7 +93,7 @@ class Fatto(models.Model):
 
     class Meta:
         verbose_name_plural = "fatti"
-        ordering = ["-data_evento", "-creato_il"]
+        ordering = [models.F("data_evento").desc(nulls_last=True), "-creato_il"]
 
     def __str__(self):
         return self.sintesi

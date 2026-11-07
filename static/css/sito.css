@@ -98,3 +98,4 @@ h3 { font-size: 1.05rem; margin: 1.5rem 0 .5rem; }
 .regione h2 small { font: 500 .9rem var(--sans); color: var(--tenue); }
 .altri-articoli { display: inline-block; margin-top: .35rem; font-size: .8rem; font-weight: 500; text-decoration: none; }
 .altri-articoli:hover { text-decoration: underline; }
+.data-notizia { display: block; font-size: .7rem; text-transform: uppercase; letter-spacing: .03em; }

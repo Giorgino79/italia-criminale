@@ -25,6 +25,13 @@
   {% for f in fatti %}{% include "pagine/_fatto_riga.html" %}{% endfor %}
 </section>
 {% empty %}
-<p class="vuoto">Nessun fatto registrato per questo giorno. Per raccoglierli: <code>python manage.py raccogli_giorno --data {{ giorno|date:"Y-m-d" }}</code></p>
+{% if not sviluppi %}<p class="vuoto">Nessun fatto registrato per questo giorno. Per raccoglierli: <code>python manage.py raccogli_giorno --data {{ giorno|date:"Y-m-d" }}</code></p>{% endif %}
 {% endfor %}
+{% if sviluppi %}
+<section class="regione">
+  <h2>Sviluppi su fatti precedenti <small>{{ sviluppi|length }}</small></h2>
+  <p class="nota">Processi, sentenze, indagini riaperte: notizie di questo giorno su fatti avvenuti prima o di cui la fonte non indica la data.</p>
+  {% for f in sviluppi %}{% include "pagine/_fatto_riga.html" %}{% endfor %}
+</section>
+{% endif %}
 {% endblock %}

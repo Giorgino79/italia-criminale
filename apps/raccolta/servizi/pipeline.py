@@ -104,7 +104,7 @@ def _registra_fatto(articolo: Articolo, dati: dict, testo_articolo: str, escludi
     data_articolo = timezone.localtime(articolo.pubblicato_il).date() if articolo.pubblicato_il else None
     slugs = dati.get("categorie") or ["altro"]
     nuova_fase = dati.get("fase")
-    data_sviluppo = _data(dati.get("data_sviluppo")) or data_articolo
+    data_sviluppo = _data(dati.get("data_sviluppo")) or data_articolo or timezone.localdate()
     e_seguito = bool(dati.get("e_seguito")) or nuova_fase in FASI_GIUDIZIARIE
     confronto = f"{articolo.titolo}\n{dati.get('sintesi', '')}"
 
@@ -134,7 +134,8 @@ def _registra_fatto(articolo: Articolo, dati: dict, testo_articolo: str, escludi
             sintesi=dati.get("sintesi", articolo.titolo)[:300],
             fase=nuova_fase or "notizia",
             data_evento=data_evento,
-            data_ultimo_sviluppo=data_sviluppo if e_seguito else None,
+            # senza data del fatto, si registra almeno la data della notizia
+            data_ultimo_sviluppo=data_sviluppo if (e_seguito or data_evento is None) else None,
             provincia=provincia,
             comune=comune,
             quartiere=quartiere,

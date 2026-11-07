@@ -117,7 +117,7 @@ def cittadinanza(qs, campo="cittadinanza_autori"):
     from apps.reati.choices import Cittadinanza
 
     totale = qs.count()
-    conteggi = {r[campo]: r["totale"] for r in qs.values(campo).annotate(totale=Count("id", distinct=True))}
+    conteggi = {r[campo]: r["totale"] for r in qs.order_by().values(campo).annotate(totale=Count("id", distinct=True))}
     indicati = totale - conteggi.get(Cittadinanza.NON_INDICATA, 0)
     stranieri = sum(conteggi.get(v, 0) for v in STRANIERE)
     return {

@@ -4,7 +4,7 @@
 <p class="briciole"><a href="{% url 'elenco_fatti' %}">Fatti</a> / scheda</p>
 <h1>{{ fatto.sintesi }}</h1>
 <dl class="scheda">
-  <dt>Data</dt><dd>{{ fatto.data_evento|date:"j F Y"|default:"non indicata" }}</dd>
+  <dt>Data del fatto</dt><dd>{{ fatto.data_evento|date:"j F Y"|default:"non indicata dalla fonte" }}{% if fatto.data_ultimo_sviluppo and fatto.data_ultimo_sviluppo != fatto.data_evento %} <small>· ultima notizia del {{ fatto.data_ultimo_sviluppo|date:"j F Y" }}</small>{% endif %}</dd>
   <dt>Reati (stima)</dt><dd>{% for c in fatto.categorie.all %}{{ c.nome }} <small>({{ c.riferimento_normativo|default:"—" }})</small>{% if not forloop.last %}, {% endif %}{% endfor %}</dd>
   <dt>Fase procedurale</dt><dd>{{ fatto.get_fase_display }}</dd>
   <dt>Luogo</dt><dd>{% if fatto.luogo_testo %}{{ fatto.luogo_testo }} · {% endif %}{% if fatto.quartiere %}{{ fatto.quartiere.nome }} · {% endif %}{% if fatto.comune %}{{ fatto.comune }} ({{ fatto.comune.provincia.sigla }}, {{ fatto.regione }}){% elif fatto.provincia %}provincia di {{ fatto.provincia.nome }} ({{ fatto.regione }}){% else %}non individuato{% endif %} <small>precisione: {{ fatto.get_precisione_display|lower }}</small></dd>

@@ -1,5 +1,5 @@
 <article class="fatto">
-  <div class="fatto__data">{{ f.data_evento|date:"d M Y"|default:"data n.d." }}</div>
+  <div class="fatto__data">{% if f.data_evento %}{{ f.data_evento|date:"d M Y" }}{% elif f.data_ultimo_sviluppo %}<span class="data-notizia">notizia del</span> {{ f.data_ultimo_sviluppo|date:"d M Y" }}{% else %}<span class="data-notizia">notizia del</span> {{ f.creato_il|date:"d M Y" }}{% endif %}</div>
   <div>
     <a class="fatto__sintesi" href="{% url 'dettaglio_fatto' f.pk %}">{{ f.sintesi }}</a>
     <div class="fatto__meta">

@@ -124,8 +124,20 @@ def _cittadinanza_da_testo(t: str) -> str:
     return trovate.pop() if trovate else Cittadinanza.NON_INDICATA
 
 
+# Titoli che non sono cronaca di un singolo fatto: rassegne, riepiloghi, aggiornamenti in diretta
+NON_FATTO = re.compile(
+    r"notizie (?:da sapere|del giorno|di oggi|della giornata)|le altre notizie|per iniziare la giornata|"
+    r"la giornata in \d+|rassegna stampa|\bdiretta\b|\blive\b|timeline\b|le notizie di",
+    re.IGNORECASE,
+)
+
+
 def estrai_con_parole_chiave(titolo: str, testo: str) -> dict:
     """Classificatore di riserva: semplice, trasparente, con confidenza sempre bassa."""
+    if NON_FATTO.search(titolo or ""):
+        return {"is_crime_news": False, "sintesi": titolo[:200], "categorie": [], "fase": Fase.NOTIZIA,
+                "contesto": Contesto.ALTRO, "aggressione": False, "arma": Arma.NON_SPECIFICATA,
+                "confidenza": Confidenza.BASSA, "evidenza": ""}
     t = f"{titolo}\n{testo}".lower()
     trovate, evidenza = [], ""
     for cat in CategoriaReato.objects.exclude(parole_chiave=""):
