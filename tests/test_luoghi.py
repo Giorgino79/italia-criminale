@@ -57,3 +57,24 @@ def test_nome_dal_modello_coerente_con_provincia(territorio):
 def test_in_provincia_di(territorio):
     _, provincia, _ = trova_luogo(None, "Incidente in provincia di Como", "Nessun altro dettaglio.")
     assert provincia == territorio["co"]
+
+
+def test_comune_che_e_anche_nome_di_persona(territorio):
+    from apps.territorio.models import Provincia, Regione
+    pie = Regione.objects.create(nome="Piemonte", codice_istat="01")
+    vb = Provincia.objects.create(nome="Verbano-Cusio-Ossola", sigla="VB", regione=pie)
+    cesara = Comune.objects.create(nome="Cesara", provincia=vb)
+    comune, _, _ = trova_luogo(None, "Grande Fratello, eliminato Alex", "Cesara e Marco al televoto, Alex lascia la casa.")
+    assert comune is None
+    comune, _, _ = trova_luogo(None, "Furto in una villa", "Ladri in azione a Cesara, rubati gioielli.")
+    assert comune == cesara
+
+
+
+def test_nome_seguito_da_cognome_non_e_luogo(territorio):
+    from apps.territorio.models import Provincia, Regione
+    mar = Regione.objects.create(nome="Marche", codice_istat="11")
+    an = Provincia.objects.create(nome="Ancona", sigla="AN", regione=mar)
+    Comune.objects.create(nome="Barbara", provincia=an)
+    comune, _, _ = trova_luogo(None, "Ornella Muti parla con Barbara d' Urso", "Ha detto a Barbara D'Urso che non tornerà.")
+    assert comune is None

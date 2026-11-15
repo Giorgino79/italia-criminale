@@ -70,8 +70,31 @@ def trova_provincia(titolo: str, testo: str):
     return None, ""
 
 
-def _punteggio(nome: str, titolo: str, testo: str) -> float:
-    """Più alto se il comune è nel titolo o nell'attacco dell'articolo, negativo se è citato come origine."""
+# Preposizioni che indicano un luogo: "a Cesara", "nel centro di Cesara". Senza, un nome può essere una persona.
+_RE_LOCATIVO = re.compile(r"(?:\b(?:a|ad|in|di|da|nel|nella|sul|sulla|tra|fra|verso|presso|dal|dalla|al|alla)\s+)$", re.IGNORECASE)
+
+
+def _punteggio(nome: str, titolo: str, testo: str, piccolo: bool = False) -> float:
+    """Più alto se il comune è nel titolo o nell'attacco dell'articolo, negativo se è citato come origine.
+
+    piccolo=True (comuni non capoluogo): conta solo se il nome appare come luogo — dopo una preposizione
+    ("a Cesara") o come intestazione in maiuscolo ("CESARA –") — perché molti comuni sono anche nomi di persona."""
+    if piccolo:
+        come_luogo = False
+        for variante in {nome, nome.upper()}:
+            for parte in (titolo, testo):
+                for m in re.finditer(rf"\b{re.escape(variante)}\b", parte):
+                    prima = parte[max(0, m.start() - 12):m.start()]
+                    # "Barbara d'Urso", "Barbara Rossi": nome seguito da cognome = persona, non luogo
+                    seguito = parte[m.end():m.end() + 25]
+                    if re.match(r"\s+(?:[A-ZÀ-Ü][a-zà-ü'’]+|d['’]\s?[A-ZÀ-Ü]|De\s|Di\s|de\s[A-ZÀ-Ü]|di\s[A-ZÀ-Ü][a-z])", seguito):
+                        continue
+                    dopo = parte[m.end():m.end() + 3].strip()[:1]
+                    intestazione = m.start() < 5 and (variante.isupper() or dopo in (",", "–", "-", ":"))
+                    if _RE_LOCATIVO.search(prima) or intestazione:
+                        come_luogo = True
+        if not come_luogo:
+            return 0.0
     punti = 0.0
     for variante in {nome, nome.upper()}:
         if re.search(rf"\b{re.escape(variante)}\b", titolo):
@@ -117,7 +140,7 @@ def trova_luogo(nome: str | None, titolo: str, testo: str, testata=None):
                 nome_c, t, b = comune.nome, titolo, testo
             if nome_c not in t and nome_c not in b and nome_c.upper() not in b:
                 continue
-            punti = _punteggio(nome_c, t, b)
+            punti = _punteggio(nome_c, t, b, piccolo=not copertura and not comune.capoluogo)
             if provincia:
                 punti += 5 if comune.provincia_id == provincia.id else -10
             punti += 0.5 if comune.capoluogo else 0

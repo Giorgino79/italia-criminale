@@ -32,3 +32,34 @@ def test_rassegne_escluse_e_scartate(dati_base):
     call_command("scarta_rassegne", verbosity=0)
     f.refresh_from_db()
     assert f.stato_revisione == "scartato"
+
+
+def test_spettacolo_e_parole_isolate_non_sono_cronaca(db):
+    from django.core.management import call_command
+    call_command("carica_dati_base", verbosity=0)
+    gf = estrai_con_parole_chiave(
+        "Grande Fratello Vip, eliminato e finalista: Alex lascia lo studio. Chi sono i concorrenti al televoto",
+        "Cesara ha rubato la scena in puntata.")
+    assert gf["is_crime_news"] is False
+    isolata = estrai_con_parole_chiave("Il campione che ha conquistato tutti", "Ha rubato il cuore dei tifosi con una prestazione da record.")
+    assert isolata["is_crime_news"] is False
+    vero = estrai_con_parole_chiave("Furto in una villa, rubati gioielli", "I ladri sono entrati di notte.")
+    assert vero["is_crime_news"] is True and "furto" in vero["categorie"]
+
+
+def test_esempi_reali_non_sono_reati(db):
+    from django.core.management import call_command
+    call_command("carica_dati_base", verbosity=0)
+    casi = [
+        ("Ballando con le Stelle, le pagelle: Ornella Muti s'è scordata le costole rotte?! (4), Carlucci ipocrita",
+         "La concorrente è caduta durante le prove, ferita a una costola, ma ha ballato lo stesso. Ferita anche la partner."),
+        ("La maestra che ha rinunciato al posto fisso: «Ho rifiutato privilegi e soldi in più»",
+         "Racconta gli abusi di potere che ha visto nella scuola e la scelta di lasciare: abusi sessuali mai, dice."),
+        ("Ornella Muti parla con Barbara d' Urso ma scoppia il putiferio con Mariotto",
+         "Minacce di lasciare lo show, minacciato di squalifica il ballerino."),
+    ]
+    for titolo, testo in casi:
+        assert estrai_con_parole_chiave(titolo, testo)["is_crime_news"] is False, titolo
+    vero = estrai_con_parole_chiave("Roma, rapina a mano armata nel negozio di Muller: rubate carte Pokemon",
+                                    "I carabinieri cercano i due rapinatori fuggiti con il bottino.")
+    assert vero["is_crime_news"] is True and "rapina" in vero["categorie"]

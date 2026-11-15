@@ -127,7 +127,22 @@ def _cittadinanza_da_testo(t: str) -> str:
 # Titoli che non sono cronaca di un singolo fatto: rassegne, riepiloghi, aggiornamenti in diretta
 NON_FATTO = re.compile(
     r"notizie (?:da sapere|del giorno|di oggi|della giornata)|le altre notizie|per iniziare la giornata|"
-    r"la giornata in \d+|rassegna stampa|\bdiretta\b|\blive\b|timeline\b|le notizie di",
+    r"la giornata in \d+|rassegna stampa|\bdiretta\b|\blive\b|timeline\b|le notizie di|"
+    # spettacolo, gossip, sport, servizi: non sono cronaca di reati anche se usano parole come "rubato" o "colpo"
+    r"grande fratello|\bgf vip\b|temptation island|ballando con le stelle|x factor|\bsanremo\b|\breality\b|"
+    r"\bpuntata\b|televoto|\bconcorrent[ei]\b|\bgossip\b|\boroscopo\b|serie a\b|champions league|"
+    r"\bricett[ae]\b|meteo\b|previsioni del tempo|\bfilm\b|\bserie tv\b|\bfiction\b|\balbum\b",
+    re.IGNORECASE,
+)
+
+
+# Senza almeno uno di questi segnali un articolo non è cronaca di un reato, qualunque parola contenga
+# (es. "costole rotte" a un programma tv, "rubato la scena").
+CONTESTO_REATO = re.compile(
+    r"carabinier|polizi|questur|procur|\bpm\b|magistrat|giudic|tribunal|indagin|indagat|inquirent|investigator|"
+    r"denunci|querel|arrest|fermat[oaie]\b|manette|perquisizion|sequestr|guardia di finanza|\bgdf\b|"
+    r"vittim|aggressor|reato|delitto|omicidi|processo|condann|assolt|accusat|appello|cassazione|sentenz|imputat|carcer|detenut|"
+    r"rapinator|ladr[oi]\b|spacciator|malviv|criminal|clan\b|mafios|camorr|'ndrangh",
     re.IGNORECASE,
 )
 
@@ -139,16 +154,26 @@ def estrai_con_parole_chiave(titolo: str, testo: str) -> dict:
                 "contesto": Contesto.ALTRO, "aggressione": False, "arma": Arma.NON_SPECIFICATA,
                 "confidenza": Confidenza.BASSA, "evidenza": ""}
     t = f"{titolo}\n{testo}".lower()
-    trovate, evidenza = [], ""
+    trovate, evidenza, nel_titolo, occorrenze = [], "", False, 0
+    titolo_l = (titolo or "").lower()
     for cat in CategoriaReato.objects.exclude(parole_chiave=""):
         for parola in cat.lista_parole_chiave:
-            m = re.search(rf"\b{re.escape(parola)}", t)
-            if m:
+            trovati = list(re.finditer(rf"\b{re.escape(parola)}", t))
+            if trovati:
                 trovate.append(cat.slug)
+                occorrenze += len(trovati)
+                nel_titolo = nel_titolo or bool(re.search(rf"\b{re.escape(parola)}", titolo_l))
                 if not evidenza:
+                    m = trovati[0]
                     inizio = max(0, m.start() - 80)
                     evidenza = f"{titolo}\n{testo}"[inizio:m.end() + 80].replace("\n", " ").strip()
                 break
+    # Una parola isolata nel corpo ("ha rubato la scena") non basta: serve nel titolo o almeno due volte
+    if trovate and not nel_titolo and occorrenze < 2:
+        trovate = []
+    # E serve un contesto da cronaca giudiziaria: forze dell'ordine, procura, denuncia, arresto, vittime...
+    if trovate and not CONTESTO_REATO.search(t):
+        trovate = []
     fase = next((f for pattern, f in _FASI if re.search(pattern, t)), Fase.NOTIZIA)
     arma = Arma.NON_SPECIFICATA
     if re.search(r"coltell|accoltell|lama", t):
