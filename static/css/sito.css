@@ -99,3 +99,13 @@ h3 { font-size: 1.05rem; margin: 1.5rem 0 .5rem; }
 .altri-articoli { display: inline-block; margin-top: .35rem; font-size: .8rem; font-weight: 500; text-decoration: none; }
 .altri-articoli:hover { text-decoration: underline; }
 .data-notizia { display: block; font-size: .7rem; text-transform: uppercase; letter-spacing: .03em; }
+
+/* Titolo-ricerca: porta al modulo in fondo alla pagina */
+html { scroll-behavior: smooth; }
+.titolo-ricerca a { color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: .5rem; }
+.titolo-ricerca a:hover { color: var(--accento); }
+.titolo-ricerca .lente { color: var(--accento); flex-shrink: 0; transition: transform .15s; }
+.titolo-ricerca a:hover .lente { transform: scale(1.12); }
+.filtri-attivi { font-size: .85rem; color: var(--tenue); margin-top: -.5rem; }
+.ricerca { margin-top: 2.5rem; scroll-margin-top: 4rem; }
+.ricerca:target .filtri { outline: 2px solid var(--accento); outline-offset: 2px; }

@@ -1,8 +1,7 @@
 {% extends "base.html" %}{% load humanize %}
-{% block titolo %}Statistiche{% endblock %}
+{% block titolo %}Ricerca per Statistiche{% endblock %}
 {% block contenuto %}
-<h1>Statistiche</h1>
-{% include "pagine/_filtri.html" %}
+{% include "pagine/_titolo_ricerca.html" with titolo="Ricerca per Statistiche" %}
 <div class="barra"><span>{{ riepilogo.fatti }} reati nel periodo selezionato</span>{% include "pagine/_esporta.html" %}</div>
 <section class="grafico"><h2>Reati per giorno</h2><canvas id="g-giorni" height="90"></canvas></section>
 <section class="grafico"><h2>Reati per tipo</h2><canvas id="g-categorie" height="120"></canvas></section>
@@ -56,6 +55,7 @@
 <p class="nota">Le quote si calcolano solo con almeno 5 reati con cittadinanza indicata. I residenti stranieri non coincidono con i presenti (turisti, lavoratori, persone senza residenza).</p>
 
 <p class="nota">I confronti tra zone dipendono dalla copertura delle testate locali e dalla popolazione presente, non solo residente. Vedi la <a href="{% url 'metodologia' %}">metodologia</a>.</p>
+{% include "pagine/_filtri.html" with titolo="Ricerca per Statistiche" %}
 {% endblock %}
 {% block script %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>

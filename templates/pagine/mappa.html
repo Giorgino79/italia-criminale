@@ -1,11 +1,11 @@
 {% extends "base.html" %}
-{% block titolo %}Mappa{% endblock %}
+{% block titolo %}Ricerca per località{% endblock %}
 {% block head %}<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">{% endblock %}
 {% block contenuto %}
-<h1>Mappa</h1>
-{% include "pagine/_filtri.html" %}
+{% include "pagine/_titolo_ricerca.html" with titolo="Ricerca per località" %}
 <div id="mappa"></div>
 <p class="nota">Ogni punto è collocato con la precisione disponibile nella fonte. I reati avvenuti in abitazioni private non sono mostrati sulla mappa.</p>
+{% include "pagine/_filtri.html" with titolo="Ricerca per località" %}
 {% endblock %}
 {% block script %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>

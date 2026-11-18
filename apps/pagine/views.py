@@ -21,6 +21,13 @@ def _querystring(request):
     return q.urlencode()
 
 
+def _filtri_attivi(filtro) -> str:
+    """Riassunto leggibile dei filtri in uso, mostrato in cima quando il modulo è in fondo alla pagina."""
+    from apps.esportazioni.views import _descrivi_filtri
+
+    return _descrivi_filtri(filtro)
+
+
 def home(request):
     qs = Fatto.objects.pubblicati().con_relazioni()
     return render(request, "pagine/home.html", {
@@ -35,7 +42,9 @@ def elenco_fatti(request):
     filtro = filtra(request.GET)
     risultati = filtro.qs if request.GET.get("ordina") else filtro.qs.recenti()
     pagina = Paginator(risultati, 30).get_page(request.GET.get("pagina"))
-    return render(request, "pagine/fatti.html", {"filtro": filtro, "pagina": pagina, "qs": _querystring(request)})
+    return render(request, "pagine/fatti.html", {
+        "filtro": filtro, "pagina": pagina, "qs": _querystring(request), "filtri_attivi": _filtri_attivi(filtro),
+    })
 
 
 def dettaglio_fatto(request, pk):
@@ -71,6 +80,7 @@ def statistiche_view(request):
     return render(request, "pagine/statistiche.html", {
         "filtro": filtro,
         "qs": _querystring(request),
+        "filtri_attivi": _filtri_attivi(filtro),
         "riepilogo": statistiche.riepilogo(qs),
         "regioni": statistiche.per_regione(qs),
         "comuni": comuni,
@@ -92,7 +102,9 @@ def mappa(request):
          "data": f.data_evento.strftime("%d/%m/%Y") if f.data_evento else ""}
         for f in filtro.qs.exclude(lat=None)[:2000] if f.mostra_coordinate
     ]
-    return render(request, "pagine/mappa.html", {"filtro": filtro, "punti": json.dumps(punti)})
+    return render(request, "pagine/mappa.html", {
+        "filtro": filtro, "punti": json.dumps(punti), "filtri_attivi": _filtri_attivi(filtro),
+    })
 
 
 def metodologia(request):

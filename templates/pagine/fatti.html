@@ -1,8 +1,7 @@
 {% extends "base.html" %}
-{% block titolo %}Reati{% endblock %}
+{% block titolo %}Ricerca per Reati{% endblock %}
 {% block contenuto %}
-<h1>Reati</h1>
-{% include "pagine/_filtri.html" %}
+{% include "pagine/_titolo_ricerca.html" with titolo="Ricerca per Reati" %}
 <div class="barra"><span>{{ pagina.paginator.count }} reati</span>{% include "pagine/_esporta.html" %}</div>
 {% for f in pagina %}{% include "pagine/_fatto_riga.html" %}{% empty %}<p class="vuoto">Nessun reato con questi filtri.</p>{% endfor %}
 {% if pagina.has_other_pages %}
@@ -12,4 +11,5 @@
   {% if pagina.has_next %}<a href="?{{ qs }}&pagina={{ pagina.next_page_number }}">Successivi →</a>{% endif %}
 </nav>
 {% endif %}
+{% include "pagine/_filtri.html" with titolo="Ricerca per Reati" %}
 {% endblock %}
