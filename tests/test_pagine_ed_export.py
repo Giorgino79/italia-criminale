@@ -41,8 +41,8 @@ def test_export_excel(client, fatti):
     r = client.get("/esporta/excel/")
     assert r.status_code == 200
     wb = load_workbook(io.BytesIO(r.content))
-    assert wb.sheetnames[:3] == ["Fatti", "Per reato", "Per regione"]
-    assert wb["Fatti"].max_row == 3
+    assert wb.sheetnames[:3] == ["Reati", "Per reato", "Per regione"]
+    assert wb["Reati"].max_row == 3
 
 
 def test_export_pdf(client, fatti):

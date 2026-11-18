@@ -16,7 +16,7 @@ def test_seguito_senza_data_mostra_data_notizia_e_va_in_ordine(client, dati_base
     home = client.get("/").content.decode()
     assert "data n.d." not in home and "notizia del" in home
     giorno = client.get("/giorno/2026-11-06/").content.decode()
-    assert "Sviluppi su fatti precedenti" in giorno and "Cassazione conferma la condanna" in giorno
+    assert "Sviluppi su reati precedenti" in giorno and "Cassazione conferma la condanna" in giorno
 
 
 def test_rassegne_escluse_e_scartate(dati_base):

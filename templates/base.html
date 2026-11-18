@@ -10,10 +10,10 @@
   <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/favicon-32.png' %}">
   <link rel="apple-touch-icon" href="{% static 'img/apple-touch-icon.png' %}">
   <meta name="theme-color" content="#141312">
-  <meta name="description" content="Osservatorio sulla cronaca dei reati in Italia: fatti, fonti e statistiche dai quotidiani online.">
+  <meta name="description" content="Osservatorio sulla cronaca dei reati in Italia: reati, fonti e statistiche dai quotidiani online.">
   <meta property="og:site_name" content="Italia Criminale">
   <meta property="og:title" content="{% block og_titolo %}Italia Criminale{% endblock %}">
-  <meta property="og:description" content="La cronaca dei reati in Italia, fatto per fatto, con le fonti.">
+  <meta property="og:description" content="La cronaca dei reati in Italia, reato per reato, con le fonti.">
   <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/condivisione.jpg' %}">
   <meta property="og:type" content="website">
   <link rel="stylesheet" href="{% static 'css/sito.css' %}">
@@ -30,20 +30,20 @@
     <div class="contenitore menu__riga">
       <a href="{% url 'home' %}"{% if pagina_attiva == "home" %} aria-current="page"{% endif %}>Home</a>
       <a href="{% url 'fatti_del_giorno' %}"{% if pagina_attiva == "fatti_del_giorno" or pagina_attiva == "fatti_del_giorno_data" %} aria-current="page"{% endif %}>Giorno per giorno</a>
-      <a href="{% url 'elenco_fatti' %}"{% if pagina_attiva == "elenco_fatti" or pagina_attiva == "dettaglio_fatto" %} aria-current="page"{% endif %}>Fatti</a>
+      <a href="{% url 'elenco_fatti' %}"{% if pagina_attiva == "elenco_fatti" or pagina_attiva == "dettaglio_fatto" %} aria-current="page"{% endif %}>Reati</a>
       <a href="{% url 'statistiche' %}"{% if pagina_attiva == "statistiche" %} aria-current="page"{% endif %}>Statistiche</a>
       <a href="{% url 'mappa' %}"{% if pagina_attiva == "mappa" %} aria-current="page"{% endif %}>Mappa</a>
       <a href="{% url 'metodologia' %}"{% if pagina_attiva == "metodologia" %} aria-current="page"{% endif %}>Metodologia</a>
     </div>
   </nav>
   {% endwith %}
-  <p class="contenitore avviso">Osservatorio sulla <strong>cronaca</strong> dei reati: i numeri contano i fatti riportati dai giornali, non i reati commessi. <a href="{% url 'metodologia' %}">Come leggere i dati</a></p>
+  <p class="contenitore avviso">Osservatorio sulla <strong>cronaca</strong> dei reati: i numeri contano i reati riportati dai giornali, non tutti quelli commessi. <a href="{% url 'metodologia' %}">Come leggere i dati</a></p>
   <main class="contenitore">
     {% if messages %}{% for m in messages %}<p class="messaggio">{{ m }}</p>{% endfor %}{% endif %}
     {% block contenuto %}{% endblock %}
   </main>
   <footer class="piede contenitore">
-    <p>Ogni fatto riporta le fonti originali. Un arresto o una denuncia non sono una condanna. Segnala un errore dalla scheda del fatto.</p>
+    <p>Ogni reato riporta le fonti originali. Un arresto o una denuncia non sono una condanna. Segnala un errore dalla scheda del reato.</p>
   </footer>
   {% block script %}{% endblock %}
 </body>

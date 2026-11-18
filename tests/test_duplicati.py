@@ -99,7 +99,7 @@ def test_riga_mostra_altri_articoli(client, dati_base):
     f.aggiorna_contatori()
     pagina = client.get("/").content.decode()
     assert pagina.count("Fatto ripreso") == 1
-    assert "+ altri 5 articoli per questo fatto" in pagina
+    assert "+ altri 5 articoli per questo reato" in pagina
 
 
 def test_luoghi_non_contano_come_nomi_in_comune(dati_base):

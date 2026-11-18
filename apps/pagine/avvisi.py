@@ -19,16 +19,16 @@ def avvisa_segnalazione(request, segnalazione) -> bool:
     link_admin = request.build_absolute_uri(reverse("admin:fatti_fatto_change", args=[fatto.pk]))
     link_segnalazioni = request.build_absolute_uri(reverse("admin:fatti_segnalazioneerrore_changelist"))
     corpo = (
-        f"Nuova segnalazione di errore sul fatto #{fatto.pk}\n"
+        f"Nuova segnalazione di errore sul reato #{fatto.pk}\n"
         f"«{fatto.sintesi}»\n\n"
         f"Testo della segnalazione:\n{segnalazione.testo}\n\n"
         f"Email del lettore: {segnalazione.email or 'non indicata'}\n\n"
         f"Scheda pubblica: {link_pubblico}\n"
-        f"Modifica il fatto: {link_admin}\n"
+        f"Modifica il reato: {link_admin}\n"
         f"Tutte le segnalazioni: {link_segnalazioni}\n"
     )
     messaggio = EmailMessage(
-        subject=f"[Italia Criminale] Segnalazione sul fatto #{fatto.pk}",
+        subject=f"[Osservatorio Reati] Segnalazione sul reato #{fatto.pk}",
         body=corpo,
         to=destinatari,
         reply_to=[segnalazione.email] if segnalazione.email else None,
