@@ -39,7 +39,7 @@ def riga(fatto) -> list:
 
 
 def nome_file(estensione: str) -> str:
-    return f"italia-criminale-{timezone.localdate():%Y-%m-%d}.{estensione}"
+    return f"osservatorio-reati-{timezone.localdate():%Y-%m-%d}.{estensione}"
 
 
 # ---------------- CSV ----------------
@@ -122,7 +122,7 @@ def genera_excel(qs, filtri_descr: str = "") -> bytes:
 
     note = wb.create_sheet("Note")
     for testo in [
-        "Italia Criminale – osservatorio sulla cronaca dei reati",
+        "Osservatorio Reati Italia – osservatorio sulla cronaca dei reati",
         f"Esportato il {timezone.localtime():%d/%m/%Y %H:%M}",
         f"Filtri: {filtri_descr or 'nessuno'}",
         "",
@@ -173,14 +173,14 @@ def genera_pdf(qs, filtri_descr: str = "", max_righe: int = 300) -> bytes:
 
     out = io.BytesIO()
     doc = SimpleDocTemplate(out, pagesize=landscape(A4), leftMargin=1.5 * cm, rightMargin=1.5 * cm,
-                            topMargin=1.5 * cm, bottomMargin=1.5 * cm, title="Italia Criminale – report")
+                            topMargin=1.5 * cm, bottomMargin=1.5 * cm, title="Osservatorio Reati Italia – report")
     stili = getSampleStyleSheet()
     piccolo = ParagraphStyle("piccolo", parent=stili["BodyText"], fontSize=7.5, leading=9)
     nota = ParagraphStyle("nota", parent=stili["BodyText"], fontSize=8, textColor=colors.HexColor("#555555"))
 
     r = statistiche.riepilogo(qs)
     storia = [
-        Paragraph("Italia Criminale – report sulla cronaca dei reati", stili["Title"]),
+        Paragraph("Osservatorio Reati Italia – report sulla cronaca dei reati", stili["Title"]),
         Paragraph(f"Generato il {timezone.localtime():%d/%m/%Y alle %H:%M} · Filtri: {filtri_descr or 'nessuno'}", nota),
         Spacer(1, 0.4 * cm),
         Table(

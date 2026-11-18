@@ -4,8 +4,8 @@ from django.templatetags.static import static
 from django.urls import include, path
 from django.views.generic import RedirectView
 
-admin.site.site_header = "Italia Criminale – amministrazione"
-admin.site.site_title = "Italia Criminale"
+admin.site.site_header = "Osservatorio Reati – amministrazione"
+admin.site.site_title = "Osservatorio Reati"
 
 urlpatterns = [
     # i browser chiedono /favicon.ico anche senza il tag nella pagina

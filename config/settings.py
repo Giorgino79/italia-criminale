@@ -1,4 +1,4 @@
-"""Impostazioni del progetto Italia Criminale.
+"""Impostazioni del progetto Osservatorio Reati Italia.
 
 I valori sensibili e quelli che cambiano tra sviluppo e produzione
 si leggono dal file .env (vedi .env.example).
@@ -151,7 +151,7 @@ if env("EMAIL_URL", default=""):
     vars().update(env.email_url("EMAIL_URL"))
 else:
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="Italia Criminale <noreply@localhost>")
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="Osservatorio Reati <noreply@localhost>")
 # Chi riceve l'avviso a ogni segnalazione di errore (più indirizzi separati da virgola)
 SEGNALAZIONI_EMAIL = env.list("SEGNALAZIONI_EMAIL", default=[])
 
