@@ -34,7 +34,7 @@ AGGETTIVI_PROVINCIA = {
 }
 
 _RE_AGGETTIVO = re.compile(
-    r"\b(?:nel|nella|del|della|dal|dalla|sul|sulla|in)\s+(" + "|".join(sorted(AGGETTIVI_PROVINCIA, key=len, reverse=True)) + r")\b",
+    r"\b(?:nel|nella|nell['’]|del|della|dell['’]|dal|dalla|sul|sulla|in)\s*(?:(?:nord|sud|basso|bassa|alto|alta)\s+)?(" + "|".join(sorted(AGGETTIVI_PROVINCIA, key=len, reverse=True)) + r")\b",
     re.IGNORECASE,
 )
 _RE_IN_PROVINCIA = re.compile(r"\b(?:in )?provincia di ([A-ZÀ-Ü][\w'À-ü]+(?:[ -][A-ZÀ-Ü][\w'À-ü]+)?)")
@@ -54,7 +54,10 @@ def trova_provincia(titolo: str, testo: str):
     for parte in (titolo, testo[:600]):
         m = _RE_AGGETTIVO.search(parte)
         if m:
-            prov = Provincia.objects.filter(sigla=AGGETTIVI_PROVINCIA[m.group(1).lower()]).first()
+            sigla = AGGETTIVI_PROVINCIA[m.group(1).lower()]
+            if sigla == "BA" and re.search(r"nord\s+barese", m.group(0), re.IGNORECASE):
+                sigla = "BT"  # il "nord Barese" è la provincia di Barletta-Andria-Trani
+            prov = Provincia.objects.filter(sigla=sigla).first()
             if prov:
                 return prov, m.group(0)
         m = _RE_IN_PROVINCIA.search(parte)
@@ -74,11 +77,37 @@ def trova_provincia(titolo: str, testo: str):
 _RE_LOCATIVO = re.compile(r"(?:\b(?:a|ad|in|di|da|nel|nella|sul|sulla|tra|fra|verso|presso|dal|dalla|al|alla)\s+)$", re.IGNORECASE)
 
 
+# Nomi di battesimo frequenti: "Guido Contrada", "Giovanni Falcone" sono persone, non i comuni omonimi
+NOMI_DI_BATTESIMO = {
+    "giovanni", "giuseppe", "antonio", "mario", "luigi", "francesco", "paolo", "pietro", "carlo", "marco", "andrea",
+    "luca", "matteo", "giorgio", "roberto", "stefano", "alessandro", "massimo", "fabio", "salvatore", "vincenzo",
+    "domenico", "gianni", "guido", "bruno", "sergio", "claudio", "franco", "enrico", "alberto", "angelo", "aldo",
+    "nicola", "michele", "raffaele", "gennaro", "ciro", "filippo", "riccardo", "simone", "davide", "daniele",
+    "emanuele", "federico", "giulio", "lorenzo", "leonardo", "tommaso", "silvio", "sandro", "renato", "umberto",
+    "maria", "anna", "giulia", "francesca", "laura", "paola", "sara", "chiara", "elena", "valentina", "giovanna",
+    "rosa", "teresa", "lucia", "carla", "silvia", "alessandra", "federica", "martina", "elisa", "monica", "barbara",
+    "patrizia", "daniela", "cristina", "roberta", "simona", "angela", "rita", "giuliana", "loredana", "ilaria",
+}
+_RE_PERSONA_PRIMA = re.compile(r"\b([A-ZÀ-Ü][a-zà-ü]+)\s+$")
+
+
+def _e_cognome(nome: str, titolo: str, testo: str) -> bool:
+    """Il nome del comune compare preceduto da un nome di battesimo: è il cognome di una persona."""
+    for parte in (titolo, testo):
+        for m in re.finditer(rf"\b{re.escape(nome)}\b", parte):
+            p = _RE_PERSONA_PRIMA.search(parte[max(0, m.start() - 20):m.start()])
+            if p and p.group(1).lower() in NOMI_DI_BATTESIMO:
+                return True
+    return False
+
+
 def _punteggio(nome: str, titolo: str, testo: str, piccolo: bool = False) -> float:
     """Più alto se il comune è nel titolo o nell'attacco dell'articolo, negativo se è citato come origine.
 
     piccolo=True (comuni non capoluogo): conta solo se il nome appare come luogo — dopo una preposizione
     ("a Cesara") o come intestazione in maiuscolo ("CESARA –") — perché molti comuni sono anche nomi di persona."""
+    if piccolo and _e_cognome(nome, titolo, testo):
+        return 0.0
     if piccolo:
         come_luogo = False
         for variante in {nome, nome.upper()}:
@@ -129,9 +158,14 @@ def trova_luogo(nome: str | None, titolo: str, testo: str, testata=None):
     if testata:
         gruppi.append((list(testata.comuni_copertura.select_related("provincia")), True))
     gruppi.append((_comuni_per_ricerca(), False))
+    # Un comune nel titolo ("Treviso, ubriaco aggredisce...") batte quello di copertura della testata citato
+    # solo nel testo: si confrontano i punteggi di tutti i candidati, con un piccolo vantaggio per la copertura.
+    migliori = []
+    visti = set()
     for candidati, copertura in gruppi:
-        migliori = []
         for comune in candidati:
+            if comune.pk in visti:
+                continue
             if copertura:  # comuni della testata: anche in minuscolo, nessuna esclusione
                 nome_c, t, b = comune.nome.lower(), titolo.lower(), testo.lower()
             else:
@@ -144,13 +178,15 @@ def trova_luogo(nome: str | None, titolo: str, testo: str, testata=None):
             if provincia:
                 punti += 5 if comune.provincia_id == provincia.id else -10
             punti += 0.5 if comune.capoluogo else 0
+            punti += 1 if copertura else 0
             # una citazione isolata in fondo al testo (es. "Leggi anche") non basta
-            if punti >= (1 if copertura else 2.5):
+            if punti >= (2 if copertura else 2.5):
+                visti.add(comune.pk)
                 migliori.append((punti, comune))
-        if migliori:
-            migliori.sort(key=lambda x: -x[0])
-            comune = migliori[0][1]
-            return comune, comune.provincia, area
+    if migliori:
+        migliori.sort(key=lambda x: -x[0])
+        comune = migliori[0][1]
+        return comune, comune.provincia, area
     return None, provincia, area
 
 

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block titolo %}Ricerca per Reati{% endblock %}
+{% block descrizione %}Cerca i reati riportati dalla cronaca italiana per tipo, regione, provincia, comune, data e fase giudiziaria.{% endblock %}
 {% block contenuto %}
 {% include "pagine/_titolo_ricerca.html" with titolo="Ricerca per Reati" %}
 <div class="barra"><span>{{ pagina.paginator.count }} reati</span>{% include "pagine/_esporta.html" %}</div>

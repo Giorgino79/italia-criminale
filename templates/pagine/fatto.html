@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 {% block titolo %}{{ fatto.sintesi|truncatechars:60 }}{% endblock %}
+{% block descrizione %}{{ fatto.sintesi|truncatechars:120 }} – {% for c in fatto.categorie.all %}{{ c.nome }}{% if not forloop.last %}, {% endif %}{% endfor %}{% if fatto.comune %}, {{ fatto.comune }}{% endif %}{% if fatto.data_evento %}, {{ fatto.data_evento|date:"j F Y" }}{% endif %}. Fonti e sviluppi.{% endblock %}
+{% block og_titolo %}{{ fatto.sintesi }}{% endblock %}
+{% block og_descrizione %}{{ fatto.get_fase_display }}{% if fatto.comune %} · {{ fatto.comune }}{% endif %}{% endblock %}
+{% block head %}{% if fatto.stato_revisione == "scartato" %}<meta name="robots" content="noindex">{% endif %}{% endblock %}
 {% block contenuto %}
 <p class="briciole"><a href="{% url 'elenco_fatti' %}">Reati</a> / scheda</p>
 <h1>{{ fatto.sintesi }}</h1>

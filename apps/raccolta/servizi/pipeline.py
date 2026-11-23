@@ -66,7 +66,7 @@ def elabora_articolo(articolo: Articolo, scarica=None, escludi_fatto: int | None
         return articolo.fatti.first()
 
     titolo = contenuto["titolo"] or articolo.titolo
-    dati = estrazione.estrai(titolo, contenuto["testo"])
+    dati = estrazione.estrai(titolo, contenuto["testo"], articolo.url)
 
     with transaction.atomic():
         VersioneArticolo.objects.create(

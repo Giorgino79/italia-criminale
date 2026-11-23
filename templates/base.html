@@ -10,11 +10,15 @@
   <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/favicon-32.png' %}">
   <link rel="apple-touch-icon" href="{% static 'img/apple-touch-icon.png' %}">
   <meta name="theme-color" content="#141312">
-  <meta name="description" content="Osservatorio sulla cronaca dei reati in Italia: reati, fonti e statistiche dai quotidiani online.">
+  <meta name="description" content="{% block descrizione %}Osservatorio sulla cronaca dei reati in Italia: ogni reato riportato dai quotidiani online, con fonti, sviluppi giudiziari, statistiche e mappa.{% endblock %}">
+  <link rel="canonical" href="{{ url_canonico }}">
+  {% if request.GET %}<meta name="robots" content="noindex, follow">{% endif %}
+  <meta property="og:url" content="{{ url_canonico }}">
+  <meta property="og:locale" content="it_IT">
   <meta property="og:site_name" content="Osservatorio Reati Italia">
   <meta property="og:title" content="{% block og_titolo %}Osservatorio Reati Italia{% endblock %}">
-  <meta property="og:description" content="La cronaca dei reati in Italia, reato per reato, con le fonti.">
-  <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/condivisione.jpg' %}">
+  <meta property="og:description" content="{% block og_descrizione %}La cronaca dei reati in Italia, reato per reato, con le fonti.{% endblock %}">
+  <meta property="og:image" content="{{ SITO_URL }}{% static 'img/condivisione.jpg' %}">
   <meta property="og:type" content="website">
   <link rel="stylesheet" href="{% static 'css/sito.css' %}">
   {% block head %}{% endblock %}

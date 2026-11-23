@@ -1,5 +1,6 @@
 {% extends "base.html" %}{% load humanize %}
 {% block titolo_completo %}Osservatorio Reati · la cronaca dei reati in Italia{% endblock %}
+{% block head %}<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Osservatorio Reati Italia","alternateName":"Osservatorio Reati","url":"{{ SITO_URL }}/","inLanguage":"it-IT","description":"La cronaca dei reati in Italia, reato per reato, con le fonti."}</script>{% endblock %}
 {% block contenuto %}
 <section class="apertura">
   <h1>La cronaca dei reati in Italia, reato per reato, con le fonti.</h1>

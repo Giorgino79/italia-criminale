@@ -1,5 +1,6 @@
 {% extends "base.html" %}{% load humanize %}
 {% block titolo %}Ricerca per Statistiche{% endblock %}
+{% block descrizione %}Statistiche sui reati riportati dalla cronaca in Italia: andamento nel tempo, tipi di reato, regioni e province.{% endblock %}
 {% block contenuto %}
 {% include "pagine/_titolo_ricerca.html" with titolo="Ricerca per Statistiche" %}
 <div class="barra"><span>{{ riepilogo.fatti }} reati nel periodo selezionato</span>{% include "pagine/_esporta.html" %}</div>

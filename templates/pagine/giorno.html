@@ -1,5 +1,6 @@
 {% extends "base.html" %}{% load humanize %}
 {% block titolo %}Reati del {{ giorno|date:"j F Y" }}{% endblock %}
+{% block descrizione %}I reati riportati dai quotidiani online il {{ giorno|date:"j F Y" }} in Italia, con luogo, tipo di reato, fonti e sviluppi giudiziari.{% endblock %}
 {% block contenuto %}
 <nav class="giorni">
   <a href="{% url 'fatti_del_giorno_data' precedente|date:'Y-m-d' %}">← {{ precedente|date:"j M" }}</a>

@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.humanize",
+    "django.contrib.sitemaps",
     # terze parti
     "rest_framework",
     "django_filters",
@@ -61,12 +62,16 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "apps.pagine.seo.sito",
             ],
         },
     },
 ]
 
 WSGI_APPLICATION = "config.wsgi.application"
+
+# Indirizzo pubblico ufficiale: link canonici, sitemap, robots.txt
+SITO_URL = env("SITO_URL", default="https://www.osservatorioreati.it").rstrip("/")
 
 # In sviluppo SQLite; in produzione: DATABASE_URL=postgres://utente:password@host:5432/nome
 DATABASES = {

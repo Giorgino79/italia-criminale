@@ -19,6 +19,9 @@ FINESTRA_GIORNI = 3
 FINESTRA_SEGUITI_GIORNI = 365 * 12
 SOGLIA_SEGUITI = 55
 BONUS_NOME_PROPRIO = 20
+# Luogo diverso o mancante da una delle due parti (testate che indicano comuni vicini, o nessun comune):
+# si può ancora unire, ma serve una somiglianza più alta
+PENALITA_ZONA = 15
 
 # Parole con l'iniziale maiuscola che non identificano un episodio
 NON_NOMI = {
@@ -70,13 +73,23 @@ def somiglianza(fatto: Fatto, testo: str, escludi: set[str] = frozenset()) -> fl
     return base + BONUS_NOME_PROPRIO * min(2, len(comuni))
 
 
-def _zona(comune, provincia):
-    """Filtro sul luogo: il comune se noto, altrimenti la provincia, altrimenti i fatti senza luogo."""
+def _zona(comune, provincia) -> Q:
+    """Filtro sul luogo: stesso comune, stessa provincia o fatti senza luogo; senza luogo, tutti."""
+    provincia = provincia or (comune.provincia if comune is not None else None)
+    if comune is None and provincia is None:
+        return Q()
+    q = Q(comune=None, provincia=None) | Q(provincia=provincia)
     if comune is not None:
-        return {"comune": comune}
+        q |= Q(comune=comune)
+    return q
+
+
+def _penalita(fatto, comune, provincia) -> int:
+    if comune is not None:
+        return 0 if fatto.comune_id == comune.pk else PENALITA_ZONA
     if provincia is not None:
-        return {"provincia": provincia}
-    return {"comune": None, "provincia": None}
+        return 0 if fatto.comune_id is None and fatto.provincia_id == provincia.pk else PENALITA_ZONA
+    return 0 if fatto.comune_id is None and fatto.provincia_id is None else PENALITA_ZONA
 
 
 def _escludi(comune, provincia) -> set[str]:
@@ -88,13 +101,13 @@ def _escludi(comune, provincia) -> set[str]:
     return nomi
 
 
-def _migliore(candidati, testo, soglia, escludi, salta=None):
+def _migliore(candidati, testo, soglia, escludi, salta=None, comune=None, provincia=None):
     escludi = set(escludi) | nomi_di_luogo()  # una sola lettura dei luoghi per articolo
     migliore, punteggio_max = None, 0
     for fatto in candidati:
         if salta is not None and fatto.pk == salta:
             continue
-        punteggio = somiglianza(fatto, testo, escludi)
+        punteggio = somiglianza(fatto, testo, escludi) - _penalita(fatto, comune, provincia)
         if punteggio > punteggio_max:
             migliore, punteggio_max = fatto, punteggio
     return migliore if punteggio_max >= soglia else None
@@ -105,7 +118,7 @@ def trova_fatto_esistente(*, comune, data_evento, categorie_slug, testo_confront
     """Stesso luogo, date vicine, almeno una categoria in comune, testo simile o nomi propri condivisi."""
     if not categorie_slug:
         return None
-    candidati = Fatto.objects.filter(**_zona(comune, provincia), categorie__slug__in=categorie_slug).distinct()
+    candidati = Fatto.objects.filter(_zona(comune, provincia), categorie__slug__in=categorie_slug).distinct()
     if data_evento:
         finestra = (data_evento - timedelta(days=FINESTRA_GIORNI), data_evento + timedelta(days=FINESTRA_GIORNI))
         # anche i fatti senza data, se i loro articoli sono usciti negli stessi giorni
@@ -114,7 +127,8 @@ def trova_fatto_esistente(*, comune, data_evento, categorie_slug, testo_confront
             | Q(data_evento=None, articoli__pubblicato_il__date__range=finestra)
             | Q(data_evento=None, creato_il__date__range=finestra)
         )
-    return _migliore(candidati[:200], testo_confronto, SOGLIA_SOMIGLIANZA, _escludi(comune, provincia), salta)
+    return _migliore(candidati[:200], testo_confronto, SOGLIA_SOMIGLIANZA, _escludi(comune, provincia), salta,
+                     comune, provincia)
 
 
 def trova_fatto_per_seguito(*, comune, categorie_slug, testo_confronto, data_fatto_originale=None, data_limite=None,
@@ -122,7 +136,7 @@ def trova_fatto_per_seguito(*, comune, categorie_slug, testo_confronto, data_fat
     """Cerca il fatto originale di cui un articolo racconta gli sviluppi, anche di anni prima."""
     if not categorie_slug:
         return None
-    candidati = Fatto.objects.filter(**_zona(comune, provincia), categorie__slug__in=categorie_slug).distinct()
+    candidati = Fatto.objects.filter(_zona(comune, provincia), categorie__slug__in=categorie_slug).distinct()
     if data_fatto_originale:
         if len(str(data_fatto_originale)) == 4:
             candidati = candidati.filter(Q(data_evento__year=int(data_fatto_originale)) | Q(data_evento=None))
@@ -136,4 +150,4 @@ def trova_fatto_per_seguito(*, comune, categorie_slug, testo_confronto, data_fat
             Q(data_evento__gte=data_limite - timedelta(days=FINESTRA_SEGUITI_GIORNI)) | Q(data_evento=None)
         )
     return _migliore(candidati.order_by("-data_evento")[:500], testo_confronto, SOGLIA_SEGUITI,
-                     _escludi(comune, provincia), salta)
+                     _escludi(comune, provincia), salta, comune, provincia)

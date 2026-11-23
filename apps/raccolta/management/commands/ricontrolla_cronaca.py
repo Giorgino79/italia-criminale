@@ -32,7 +32,7 @@ class Command(BaseCommand):
                 if NON_FATTO.search(articolo.titolo or ""):
                     esiti.append(False)
                 else:
-                    esiti.append(bool(estrai_con_parole_chiave(articolo.titolo, testo)["is_crime_news"]))
+                    esiti.append(bool(estrai_con_parole_chiave(articolo.titolo, testo, articolo.url)["is_crime_news"]))
             if esiti and not any(esiti):
                 scartati += 1
                 self.stdout.write(f"#{fatto.pk} {fatto.sintesi[:100]}")

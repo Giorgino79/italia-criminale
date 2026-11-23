@@ -131,7 +131,9 @@ NON_FATTO = re.compile(
     # spettacolo, gossip, sport, servizi: non sono cronaca di reati anche se usano parole come "rubato" o "colpo"
     r"grande fratello|\bgf vip\b|temptation island|ballando con le stelle|x factor|\bsanremo\b|\breality\b|"
     r"\bpuntata\b|televoto|\bconcorrent[ei]\b|\bgossip\b|\boroscopo\b|serie a\b|champions league|"
-    r"\bricett[ae]\b|meteo\b|previsioni del tempo|\bfilm\b|\bserie tv\b|\bfiction\b|\balbum\b",
+    r"\bricett[ae]\b|meteo\b|previsioni del tempo|\bfilm\b|\bserie tv\b|\bfiction\b|\balbum\b|\bballando\b|\btrash\b|"
+    # politica e approfondimenti, non singoli fatti
+    r"\bmanovra\b|legge di bilancio|\bemendament|^speciale\b",
     re.IGNORECASE,
 )
 
@@ -147,8 +149,69 @@ CONTESTO_REATO = re.compile(
 )
 
 
-def estrai_con_parole_chiave(titolo: str, testo: str) -> dict:
+# Il suicidio non è un reato: "si è ucciso" non va contato come omicidio (salvo omicidio-suicidio o istigazione)
+SUICIDIO = re.compile(r"suicid|si è (?:ucciso|uccisa|tolto la vita|tolta la vita)|si toglie la vita|si uccide\b", re.IGNORECASE)
+OMICIDIO_ESPLICITO = re.compile(
+    r"omicidio|femminicidio|istigazione|\buccide\b|ha ucciso|uccidendo|\buccis[oa] (?:da|dal|dalla|a colpi)|ammazza", re.IGNORECASE)
+
+
+def e_suicidio(titolo: str) -> bool:
+    return bool(SUICIDIO.search(titolo or "")) and not OMICIDIO_ESPLICITO.search(titolo or "")
+
+
+# Fatti avvenuti all'estero: l'osservatorio conta solo i reati in Italia
+PAESI_ESTERI = (
+    "francia|germania|spagna|svizzera|austria|belgio|olanda|paesi bassi|portogallo|regno unito|inghilterra|"
+    "gran bretagna|scozia|irlanda|stati uniti|america|canada|messico|brasile|argentina|colombia|venezuela|perù|"
+    "cile|cina|giappone|corea|india|pakistan|russia|ucraina|bielorussia|israele|gaza|cisgiordania|libano|siria|iran|iraq|"
+    "afghanistan|turchia|grecia|albania|romania|bulgaria|serbia|croazia|slovenia|bosnia|kosovo|polonia|ungheria|"
+    "svezia|norvegia|danimarca|finlandia|egitto|marocco|tunisia|libia|algeria|nigeria|sudafrica|australia|thailandia|"
+    "filippine|indonesia|dubai|emirati|arabia saudita|qatar|"
+    "parigi|marsiglia|lione|nizza|londra|manchester|berlino|monaco di baviera|amburgo|madrid|barcellona|ibiza|"
+    "lisbona|vienna|zurigo|ginevra|lugano|bruxelles|amsterdam|atene|istanbul|mosca|kiev|kyiv|varsavia|budapest|"
+    "bucarest|tirana|belgrado|new york|los angeles|washington|chicago|miami|texas|california|florida|"
+    "città del messico|rio de janeiro|san paolo|buenos aires|pechino|tokyo|tel aviv|gerusalemme"
+)
+_RE_ESTERO = re.compile(
+    rf"\b(?:in|a|ad|nel|nella|nei|negli|dal|dalla|dagli|tra|fra)\s+(?:{PAESI_ESTERI})\b|"
+    r"\b(?:polizia|esercito|gendarmeria|governo|autorità|procura|giustizia|tribunale|stampa|media|marina|polizia federale)\s+"
+    r"(?:frances[ei]|tedesc[aoh]e?|spagnol[ao]|svizzer[ao]|messican[ao]|american[ao]|statunitens[ei]|britannic[ao]|"
+    r"ingles[ei]|russ[ao]|ucrain[ao]|cines[ei]|brasilian[ao]|argentin[ao]|grec[ao]|turc[ao]|albanes[ei]|romen[ao]|"
+    r"belg[ao]|olandes[ei]|austriac[ao]|israelian[ao]|egizian[ao]|marocchin[ao]|tunisin[ao]|colombian[ao])\b|"
+    r"\bnegli usa\b|\bfbi\b|\bcontea di\b|\bcartello (?:di|del) |narcos\b",
+    re.IGNORECASE,
+)
+
+
+# Sezioni dei siti dedicate all'estero (es. today.it/europa/, repubblica.it/esteri/)
+_RE_URL_ESTERO = re.compile(r"/(?:esteri|estero|mondo|europa|world|internazionale|internazionali|international)/", re.IGNORECASE)
+
+
+def e_estero(titolo: str, testo: str, url: str = "") -> bool:
+    """Il fatto è avvenuto all'estero: segnali stranieri (titolo, attacco, sezione del sito) e nessun luogo italiano."""
+    attacco = (testo or "")[:1500]
+    segnali = len(_RE_ESTERO.findall(titolo or "")) * 2 + len(_RE_ESTERO.findall(attacco))
+    segnali += 2 if _RE_URL_ESTERO.search(url or "") else 0
+    if segnali < 1:
+        return False
+    from .luoghi import trova_luogo
+
+    comune, provincia, _ = trova_luogo(None, titolo or "", testo or "")
+    return comune is None and provincia is None
+
+
+def _non_cronaca(titolo: str, motivo: str = "") -> dict:
+    return {"is_crime_news": False, "sintesi": (titolo or "")[:200], "categorie": [], "fase": Fase.NOTIZIA,
+            "contesto": Contesto.ALTRO, "aggressione": False, "arma": Arma.NON_SPECIFICATA,
+            "confidenza": Confidenza.BASSA, "evidenza": "", "motivo_scarto": motivo}
+
+
+def estrai_con_parole_chiave(titolo: str, testo: str, url: str = "") -> dict:
     """Classificatore di riserva: semplice, trasparente, con confidenza sempre bassa."""
+    if e_suicidio(titolo):
+        return _non_cronaca(titolo, "suicidio")
+    if e_estero(titolo, testo, url):
+        return _non_cronaca(titolo, "estero")
     if NON_FATTO.search(titolo or ""):
         return {"is_crime_news": False, "sintesi": titolo[:200], "categorie": [], "fase": Fase.NOTIZIA,
                 "contesto": Contesto.ALTRO, "aggressione": False, "arma": Arma.NON_SPECIFICATA,
@@ -228,15 +291,18 @@ def estrai_con_parole_chiave(titolo: str, testo: str) -> dict:
     }
 
 
-def estrai(titolo: str, testo: str) -> dict:
+def estrai(titolo: str, testo: str, url: str = "") -> dict:
     if settings.LLM["API_KEY"]:
         try:
             dati = estrai_con_llm(titolo, testo)
             dati["metodo"] = "llm"
+            # le stesse esclusioni valgono anche per il modello
+            if dati.get("is_crime_news") and (e_suicidio(titolo) or e_estero(titolo, testo, url)):
+                dati["is_crime_news"] = False
             return dati
         except Exception as e:  # rete, quota, risposta malformata: si ripiega sulle parole chiave
             log.warning("Estrazione LLM fallita, uso parole chiave: %s", e)
-    dati = estrai_con_parole_chiave(titolo, testo)
+    dati = estrai_con_parole_chiave(titolo, testo, url)
     dati["metodo"] = "parole_chiave"
     return dati
 
