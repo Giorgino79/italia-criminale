@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block titolo %}Casi seguiti{% endblock %}
+{% block descrizione %}Le vicende giudiziarie e i temi seguiti dall'Osservatorio Reati, con la cronologia degli articoli e degli sviluppi.{% endblock %}
+{% block contenuto %}
+<h1>Casi seguiti</h1>
+<p class="nota">Vicende con sviluppi quasi quotidiani: raccogliamo in un'unica pagina gli articoli dei giornali, in ordine di data, con i reati collegati.</p>
+<div class="casi">{% for c in casi %}{% include "pagine/_caso_scheda.html" %}{% empty %}<p class="vuoto">Nessun caso seguito al momento.</p>{% endfor %}</div>
+{% endblock %}

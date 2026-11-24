@@ -12,6 +12,12 @@
   <div><strong>{{ riepilogo.arresti|intcomma }}</strong>arresti</div>
   <div><strong>{{ riepilogo.comuni|intcomma }}</strong>comuni</div>
 </section>
+{% if casi %}
+<section class="casi-home">
+  <h2><a href="{% url 'casi' %}">Casi seguiti</a></h2>
+  <div class="casi">{% for c in casi %}{% include "pagine/_caso_scheda.html" %}{% endfor %}</div>
+</section>
+{% endif %}
 <div class="due-colonne">
   <section>
     <h2>Ultimi reati</h2>

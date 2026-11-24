@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block titolo %}{{ caso.nome }}{% if caso.tipo == "caso" %}: ultime notizie e cronologia{% endif %}{% endblock %}
+{% block descrizione %}{{ caso.nome }}{% if caso.sottotitolo %} – {{ caso.sottotitolo }}{% endif %}: tutti gli articoli dei quotidiani online in ordine di data{% if numeri.ultimo %}, aggiornato al {{ numeri.ultimo|date:"j F Y" }}{% endif %}.{% endblock %}
+{% block og_titolo %}{{ caso.nome }}{% endblock %}
+{% block contenuto %}
+<p class="briciole"><a href="{% url 'casi' %}">Casi seguiti</a> / {{ caso.nome }}</p>
+<h1>{{ caso.nome }}</h1>
+{% if caso.sottotitolo %}<p class="caso__sotto">{{ caso.sottotitolo }}</p>{% endif %}
+
+<dl class="scheda">
+  <dt>Tipo</dt><dd>{{ caso.get_tipo_display }}</dd>
+  <dt>Ultimo aggiornamento</dt><dd>{{ numeri.ultimo|date:"j F Y, H:i"|default:"—" }}</dd>
+  <dt>Articoli raccolti</dt><dd>{{ n_articoli }} da {{ numeri.testate }} testat{{ numeri.testate|pluralize:"a,e" }}{% if numeri.primo %} <small>· dal {{ numeri.primo|date:"j F Y" }}</small>{% endif %}</dd>
+  {% if caso.tipo == "caso" and ultima_fase %}<dt>Ultima fase rilevata</dt><dd>{{ ultima_fase.get_fase_display }}{% if ultima_fase.data_ultimo_sviluppo %} <small>· {{ ultima_fase.data_ultimo_sviluppo|date:"j F Y" }}</small>{% endif %}</dd>{% endif %}
+  {% if n_reati %}<dt>Reati collegati</dt><dd>{{ n_reati }}</dd>{% endif %}
+</dl>
+
+{% if mostra_riassunto and caso.paragrafi %}
+<section class="riassunto">
+  {% if not caso.riassunto_verificato %}<p class="bozza">Bozza da verificare: visibile solo all'amministrazione. Spunta «Riassunto verificato» nell'admin per pubblicarla.</p>{% endif %}
+  <h2>Il caso in breve</h2>
+  {% for p in caso.paragrafi %}<p>{{ p }}</p>{% endfor %}
+</section>
+{% endif %}
+<p class="nota">Le persone indagate o imputate sono da considerarsi innocenti fino a sentenza definitiva. Riportiamo titoli e fonti dei giornali, senza valutarne il contenuto.</p>
+
+{% if caso.tipo == "tema" and per_provincia %}
+<div class="due-colonne">
+  <section>
+    <h2>Reati collegati</h2>
+    {% for f in reati %}{% include "pagine/_fatto_riga.html" %}{% endfor %}
+  </section>
+  <aside>
+    <h2>Province più citate</h2>
+    <ol class="classifica">{% for r in per_provincia %}<li><span>{{ r.provincia__nome }} ({{ r.provincia__sigla }})</span><strong>{{ r.n }}</strong></li>{% endfor %}</ol>
+  </aside>
+</div>
+{% endif %}
+
+<section>
+  <h2 id="cronologia">Cronologia degli articoli</h2>
+  {% regroup pagina.object_list by pubblicato_il.date as giorni %}
+  {% for g in giorni %}
+  <h3 class="caso__giorno">{% if g.grouper %}{{ g.grouper|date:"l j F Y" }}{% else %}Data non indicata{% endif %}</h3>
+  <ul class="cronologia-caso">
+    {% for a in g.list %}
+    <li>
+      <a href="{{ a.url }}" target="_blank" rel="noopener nofollow">{{ a.titolo }}</a>
+      <small>{{ a.testata.nome }}{% if a.pubblicato_il %} · {{ a.pubblicato_il|date:"H:i" }}{% endif %}{% for f in a.fatti.all %}{% if f.stato_revisione != "scartato" %} · <a href="{% url 'dettaglio_fatto' f.pk %}">scheda del reato</a>{% endif %}{% endfor %}</small>
+    </li>
+    {% endfor %}
+  </ul>
+  {% empty %}<p class="vuoto">Nessun articolo ancora collegato.</p>
+  {% endfor %}
+  {% if pagina.has_other_pages %}
+  <nav class="paginazione">
+    {% if pagina.has_previous %}<a href="?pagina={{ pagina.previous_page_number }}#cronologia">← più recenti</a>{% else %}<span></span>{% endif %}
+    <span>pagina {{ pagina.number }} di {{ pagina.paginator.num_pages }}</span>
+    {% if pagina.has_next %}<a href="?pagina={{ pagina.next_page_number }}#cronologia">meno recenti →</a>{% else %}<span></span>{% endif %}
+  </nav>
+  {% endif %}
+</section>
+
+{% if caso.tipo == "caso" and reati %}
+<section>
+  <h2>Schede dei reati collegati</h2>
+  {% for f in reati %}{% include "pagine/_fatto_riga.html" %}{% endfor %}
+</section>
+{% endif %}
+{% endblock %}

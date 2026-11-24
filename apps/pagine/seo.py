@@ -15,7 +15,7 @@ class PagineStatiche(Sitemap):
     protocol = "https"
 
     def items(self):
-        return ["home", "fatti_del_giorno", "elenco_fatti", "statistiche", "mappa", "metodologia"]
+        return ["home", "casi", "fatti_del_giorno", "elenco_fatti", "statistiche", "mappa", "metodologia"]
 
     def location(self, item):
         return reverse(item)
@@ -58,7 +58,22 @@ class Giorni(Sitemap):
         return reverse("fatti_del_giorno_data", args=[giorno.isoformat()])
 
 
-SITEMAPS = {"pagine": PagineStatiche, "reati": Reati, "giorni": Giorni}
+class Casi(Sitemap):
+    protocol = "https"
+    changefreq = "daily"
+    priority = 0.8
+
+    def items(self):
+        from apps.fatti.models import Caso
+
+        return Caso.objects.filter(articoli__isnull=False).distinct()
+
+    def lastmod(self, caso):
+        ultimo = caso.articoli.order_by("-pubblicato_il").values_list("pubblicato_il", flat=True).first()
+        return max(filter(None, [ultimo, caso.aggiornato_il]))
+
+
+SITEMAPS = {"pagine": PagineStatiche, "casi": Casi, "reati": Reati, "giorni": Giorni}
 
 
 @cache_page(60 * 60)

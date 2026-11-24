@@ -6,6 +6,7 @@ from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
 
+from apps.fatti import casi
 from apps.fatti.models import Fatto, FattoArticolo
 from apps.fonti.models import Articolo, VersioneArticolo
 from apps.reati.choices import FASI_GIUDIZIARIE, Cittadinanza, Confidenza
@@ -81,10 +82,14 @@ def elabora_articolo(articolo: Articolo, scarica=None, escludi_fatto: int | None
         if not dati.get("is_crime_news"):
             articolo.stato = Articolo.Stato.NON_CRONACA
             articolo.save()
-            return None
-        articolo.stato = Articolo.Stato.ELABORATO
-        articolo.save()
-        return _registra_fatto(articolo, dati, contenuto["testo"], escludi_fatto)
+            fatto = None
+        else:
+            articolo.stato = Articolo.Stato.ELABORATO
+            articolo.save()
+            fatto = _registra_fatto(articolo, dati, contenuto["testo"], escludi_fatto)
+    # anche un articolo che non è un reato (es. un'udienza, un approfondimento) può appartenere a un caso seguito
+    casi.collega(articolo)
+    return fatto
 
 
 def _data_originale(valore):

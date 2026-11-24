@@ -209,3 +209,65 @@ class SegnalazioneErrore(models.Model):
         verbose_name = "segnalazione di errore"
         verbose_name_plural = "segnalazioni di errore"
         ordering = ["gestita", "-creata_il"]
+
+
+class Caso(models.Model):
+    """Una vicenda seguita nel tempo (es. un delitto con anni di processi) o un tema che raccoglie più reati.
+
+    Gli articoli si collegano da soli quando il titolo contiene una delle parole chiave.
+    Il riassunto compare sul sito solo dopo che una persona lo ha verificato.
+    """
+
+    class Tipo(models.TextChoices):
+        CASO = "caso", "Caso giudiziario (una sola vicenda)"
+        TEMA = "tema", "Tema (più reati dello stesso tipo)"
+
+    nome = models.CharField(max_length=120, help_text="Intitolato al fatto, non alle persone: «Delitto di Garlasco»")
+    slug = models.SlugField(max_length=80, unique=True, help_text="Indirizzo della pagina: /casi/<slug>/")
+    tipo = models.CharField(max_length=4, choices=Tipo.choices, default=Tipo.CASO)
+    sottotitolo = models.CharField(max_length=200, blank=True)
+    riassunto = models.TextField(blank=True, help_text="Paragrafi separati da una riga vuota. Neutro: indagato non è colpevole.")
+    riassunto_verificato = models.BooleanField(
+        default=False, help_text="Il riassunto si vede sul sito solo quando questa casella è spuntata")
+    parole_chiave = models.TextField(
+        help_text="Una per riga, in minuscolo. Basta che una compaia nel titolo dell'articolo (es. garlasco)")
+    parole_escluse = models.TextField(blank=True, help_text="Una per riga: se compare nel titolo l'articolo non si collega")
+    solo_reati = models.BooleanField(
+        default=False, help_text="Collega solo gli articoli classificati come reato (utile per i temi, es. Superbonus)")
+    attivo = models.BooleanField(default=True, help_text="Se tolto, i nuovi articoli non si collegano più")
+    in_evidenza = models.BooleanField(default=True, help_text="Mostra il caso in home")
+    ordine = models.PositiveSmallIntegerField(default=0, help_text="A parità di aggiornamento, numero più basso prima")
+    articoli = models.ManyToManyField("fonti.Articolo", related_name="casi", blank=True)
+    creato_il = models.DateTimeField(auto_now_add=True)
+    aggiornato_il = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "caso seguito"
+        verbose_name_plural = "casi seguiti"
+        ordering = ["ordine", "nome"]
+
+    def __str__(self):
+        return self.nome
+
+    def get_absolute_url(self):
+        from django.urls import reverse
+
+        return reverse("caso", args=[self.slug])
+
+    @staticmethod
+    def _righe(testo: str) -> list[str]:
+        return [r.strip().lower().replace("’", "'") for r in (testo or "").splitlines() if r.strip()]
+
+    def corrisponde(self, titolo: str) -> bool:
+        import re
+
+        t = (titolo or "").lower().replace("’", "'")
+        if any(re.search(rf"\b{re.escape(p)}", t) for p in self._righe(self.parole_escluse)):
+            return False
+        return any(re.search(rf"\b{re.escape(p)}", t) for p in self._righe(self.parole_chiave))
+
+    def paragrafi(self) -> list[str]:
+        return [p.strip() for p in (self.riassunto or "").split("\n\n") if p.strip()]
+
+    def reati(self):
+        return Fatto.objects.pubblicati().filter(articoli__casi=self).distinct()

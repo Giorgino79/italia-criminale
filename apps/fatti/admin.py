@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import EventoFatto, Fatto, FattoArticolo, Revisione, SegnalazioneErrore
+from .models import Caso, EventoFatto, Fatto, FattoArticolo, Revisione, SegnalazioneErrore
 
 
 class InAttesaFilter(admin.SimpleListFilter):
@@ -76,3 +76,27 @@ class SegnalazioneAdmin(admin.ModelAdmin):
     list_display = ["fatto", "creata_il", "gestita"]
     list_filter = ["gestita"]
     list_editable = ["gestita"]
+
+
+@admin.register(Caso)
+class CasoAdmin(admin.ModelAdmin):
+    list_display = ["nome", "tipo", "n_articoli", "riassunto_verificato", "in_evidenza", "attivo", "ordine"]
+    list_editable = ["riassunto_verificato", "in_evidenza", "attivo", "ordine"]
+    prepopulated_fields = {"slug": ["nome"]}
+    exclude = ["articoli"]
+    readonly_fields = ["istruzioni"]
+    fieldsets = [
+        (None, {"fields": ["nome", "slug", "tipo", "sottotitolo"]}),
+        ("Riassunto", {"fields": ["riassunto", "riassunto_verificato"]}),
+        ("Collegamento automatico", {"fields": ["parole_chiave", "parole_escluse", "solo_reati", "attivo", "istruzioni"]}),
+        ("Home", {"fields": ["in_evidenza", "ordine"]}),
+    ]
+
+    @admin.display(description="Articoli")
+    def n_articoli(self, obj):
+        return obj.articoli.count()
+
+    @admin.display(description="Dopo aver cambiato le parole chiave")
+    def istruzioni(self, obj):
+        return ("Gli articoli nuovi si collegano da soli. Per ricollegare quelli già in archivio: "
+                "heroku run -a italia-criminale -- python manage.py collega_casi")

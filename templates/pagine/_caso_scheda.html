@@ -1,0 +1,6 @@
+<a class="caso-scheda" href="{{ c.get_absolute_url }}">
+  <span class="caso-scheda__tipo">{% if c.tipo == "tema" %}Tema{% else %}Caso{% endif %}</span>
+  <strong>{{ c.nome }}</strong>
+  {% if c.sottotitolo %}<span class="caso-scheda__sotto">{{ c.sottotitolo }}</span>{% endif %}
+  <small>{% if c.ultimo %}aggiornato il {{ c.ultimo|date:"j F" }} · {% endif %}{{ c.n }} articol{{ c.n|pluralize:"o,i" }}</small>
+</a>

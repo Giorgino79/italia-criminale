@@ -35,6 +35,7 @@
       <a href="{% url 'home' %}"{% if pagina_attiva == "home" %} aria-current="page"{% endif %}>Home</a>
       <a href="{% url 'fatti_del_giorno' %}"{% if pagina_attiva == "fatti_del_giorno" or pagina_attiva == "fatti_del_giorno_data" %} aria-current="page"{% endif %}>Giorno per giorno</a>
       <a href="{% url 'elenco_fatti' %}"{% if pagina_attiva == "elenco_fatti" or pagina_attiva == "dettaglio_fatto" %} aria-current="page"{% endif %}>Reati</a>
+      <a href="{% url 'casi' %}"{% if pagina_attiva == "casi" or pagina_attiva == "caso" %} aria-current="page"{% endif %}>Casi seguiti</a>
       <a href="{% url 'statistiche' %}"{% if pagina_attiva == "statistiche" %} aria-current="page"{% endif %}>Statistiche</a>
       <a href="{% url 'mappa' %}"{% if pagina_attiva == "mappa" %} aria-current="page"{% endif %}>Località</a>
       <a href="{% url 'metodologia' %}"{% if pagina_attiva == "metodologia" %} aria-current="page"{% endif %}>Metodologia</a>

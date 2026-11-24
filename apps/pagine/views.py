@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from apps.fatti import statistiche
 from apps.fatti.filtri import filtra
-from apps.fatti.models import Fatto
+from apps.fatti.models import Caso, Fatto
 from apps.fonti.models import Testata
 
 from .avvisi import avvisa_segnalazione
@@ -28,9 +28,17 @@ def _filtri_attivi(filtro) -> str:
     return _descrivi_filtri(filtro)
 
 
+def _casi_con_numeri():
+    from django.db.models import Count, F, Max
+
+    return (Caso.objects.annotate(ultimo=Max("articoli__pubblicato_il"), n=Count("articoli", distinct=True))
+            .filter(n__gt=0).order_by(F("ultimo").desc(nulls_last=True), "ordine"))
+
+
 def home(request):
     qs = Fatto.objects.pubblicati().con_relazioni()
     return render(request, "pagine/home.html", {
+        "casi": _casi_con_numeri().filter(in_evidenza=True)[:6],
         "riepilogo": statistiche.riepilogo(qs),
         "ultimi": qs.recenti()[:10],
         "categorie": statistiche.per_categoria(qs, limite=8),
@@ -161,4 +169,30 @@ def fatti_del_giorno(request, giorno=None):
         "riepilogo": statistiche.riepilogo(qs),
         "categorie": statistiche.per_categoria(qs, limite=8),
         "qs": f"dal={giorno.isoformat()}&al={giorno.isoformat()}",
+    })
+
+
+def casi(request):
+    return render(request, "pagine/casi.html", {"casi": _casi_con_numeri()})
+
+
+def caso(request, slug):
+    from django.db.models import Count, Max, Min
+
+    caso = get_object_or_404(Caso, slug=slug)
+    articoli = caso.articoli.select_related("testata").prefetch_related("fatti").order_by("-pubblicato_il", "-rilevato_il")
+    numeri = articoli.aggregate(primo=Min("pubblicato_il"), ultimo=Max("pubblicato_il"),
+                                testate=Count("testata", distinct=True))
+    reati = caso.reati().con_relazioni().recenti()
+    return render(request, "pagine/caso.html", {
+        "caso": caso,
+        "numeri": numeri,
+        "pagina": Paginator(articoli, 50).get_page(request.GET.get("pagina")),
+        "n_articoli": articoli.count(),
+        "reati": reati[:30],
+        "n_reati": reati.count(),
+        "ultima_fase": reati.exclude(fase="notizia").first(),
+        "per_provincia": (reati.exclude(provincia=None).values("provincia__nome", "provincia__sigla")
+                          .annotate(n=Count("id", distinct=True)).order_by("-n")[:10]) if caso.tipo == Caso.Tipo.TEMA else [],
+        "mostra_riassunto": caso.riassunto_verificato or request.user.is_staff,
     })

@@ -109,3 +109,23 @@ html { scroll-behavior: smooth; }
 .filtri-attivi { font-size: .85rem; color: var(--tenue); margin-top: -.5rem; }
 .ricerca { margin-top: 2.5rem; scroll-margin-top: 4rem; }
 .ricerca:target .filtri { outline: 2px solid var(--accento); outline-offset: 2px; }
+
+/* Casi seguiti */
+.casi { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: .75rem; }
+.caso-scheda { display: flex; flex-direction: column; gap: .2rem; padding: .85rem 1rem; background: var(--superficie); border: 1px solid var(--riga); border-left: 3px solid var(--accento); border-radius: 6px; text-decoration: none; color: var(--inchiostro); }
+.caso-scheda:hover { border-color: var(--accento); }
+.caso-scheda strong { font: 700 1.1rem var(--serif); }
+.caso-scheda__tipo { font-size: .7rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--accento); }
+.caso-scheda__sotto { font-size: .85rem; color: var(--tenue); }
+.caso-scheda small { margin-top: .2rem; }
+.casi-home h2 a { color: inherit; text-decoration: none; }
+.caso__sotto { font-size: 1.1rem; color: var(--tenue); margin-top: -.5rem; max-width: 60ch; }
+.riassunto { max-width: 70ch; }
+.riassunto p { font-family: var(--serif); font-size: 1.05rem; }
+.bozza { background: var(--accento-tenue); color: var(--accento); padding: .5rem .75rem; border-radius: 4px; font-size: .85rem; }
+.caso__giorno { font: 600 .85rem var(--sans); color: var(--tenue); text-transform: capitalize; margin: 1.5rem 0 .4rem; padding-bottom: .3rem; border-bottom: 1px solid var(--riga); }
+.cronologia-caso { list-style: none; padding: 0; margin: 0; }
+.cronologia-caso li { padding: .45rem 0; }
+.cronologia-caso li > a { font: 600 1rem var(--serif); color: var(--inchiostro); text-decoration: none; }
+.cronologia-caso li > a:hover { color: var(--accento); }
+.cronologia-caso small { display: block; }
