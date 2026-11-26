@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block titolo %}Chi siamo{% endblock %}
+{% block descrizione %}L'Osservatorio Reati Italia è un progetto indipendente che raccoglie e classifica la cronaca dei reati pubblicata dai quotidiani online italiani.{% endblock %}
+{% block contenuto %}
+<article class="testo-lungo">
+<h1>Chi siamo</h1>
+<p>L'<strong>Osservatorio Reati Italia</strong> è un progetto indipendente che segue la cronaca dei reati pubblicata dai quotidiani online italiani. Ogni giorno raccogliamo gli articoli, riconosciamo quando più giornali raccontano lo stesso episodio, lo classifichiamo per tipo di reato e luogo e ne seguiamo gli sviluppi giudiziari nel tempo: arresto, processo, sentenza.</p>
+<p>L'obiettivo è offrire uno strumento di consultazione: capire quali reati finiscono sui giornali, dove e con quale frequenza, e ritrovare in un'unica pagina tutte le fonti su un fatto o su un caso seguito da anni.</p>
+
+<h2>Cosa non siamo</h2>
+<ul>
+  <li>Non siamo una fonte ufficiale: i numeri contano i reati <em>riportati dai giornali</em>, non tutti quelli commessi. Per le statistiche ufficiali si vedano i dati del Ministero dell'Interno e dell'ISTAT.</li>
+  <li>Non siamo collegati a forze dell'ordine, procure o testate giornalistiche.</li>
+  <li>Non esprimiamo giudizi sulle persone: un arresto o un'indagine non sono una condanna e chi è indagato o imputato è innocente fino a sentenza definitiva.</li>
+</ul>
+
+<h2>Come lavoriamo</h2>
+<p>Raccolta, classificazione e limiti dei dati sono spiegati nella pagina <a href="{% url 'metodologia' %}">Metodologia</a>. Le schede non riportano nomi delle persone coinvolte: per ogni reato indichiamo i titoli e i link agli articoli originali dei giornali.</p>
+<p>La classificazione è automatica e può contenere errori. Se ne trovi uno, usa il pulsante «Segnala un errore» nella scheda del reato oppure scrivici dalla pagina <a href="{% url 'contatti' %}">Contatti</a>.</p>
+
+<h2>Pubblicità</h2>
+<p>Il sito è gratuito e senza registrazione. Per coprire i costi di funzionamento può mostrare annunci pubblicitari di Google, che non influiscono in alcun modo sui contenuti. I dettagli sono nella <a href="{% url 'cookie' %}">Cookie policy</a>.</p>
+</article>
+{% endblock %}

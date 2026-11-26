@@ -11,8 +11,8 @@ from apps.fatti.filtri import filtra
 from apps.fatti.models import Caso, Fatto
 from apps.fonti.models import Testata
 
-from .avvisi import avvisa_segnalazione
-from .forms import SegnalazioneForm
+from .avvisi import avvisa_segnalazione, invia_contatto
+from .forms import ContattoForm, SegnalazioneForm
 
 
 def _querystring(request):
@@ -196,3 +196,19 @@ def caso(request, slug):
                           .annotate(n=Count("id", distinct=True)).order_by("-n")[:10]) if caso.tipo == Caso.Tipo.TEMA else [],
         "mostra_riassunto": caso.riassunto_verificato or request.user.is_staff,
     })
+
+
+def pagina_statica(request, modello):
+    from django.conf import settings
+
+    return render(request, f"pagine/{modello}.html", {"titolare": settings.TITOLARE_NOME})
+
+
+def contatti(request):
+    form = ContattoForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        if not form.cleaned_data.get("sito_web"):  # compilato solo dai programmi di spam
+            invia_contatto(form.cleaned_data | {"motivo": dict(ContattoForm.MOTIVI)[form.cleaned_data["motivo"]]})
+        messages.success(request, "Grazie, il messaggio è stato inviato. Ti risponderemo all'email indicata.")
+        return redirect("contatti")
+    return render(request, "pagine/contatti.html", {"form": form})

@@ -15,13 +15,13 @@ class PagineStatiche(Sitemap):
     protocol = "https"
 
     def items(self):
-        return ["home", "casi", "fatti_del_giorno", "elenco_fatti", "statistiche", "mappa", "metodologia"]
+        return ["home", "casi", "fatti_del_giorno", "elenco_fatti", "statistiche", "mappa", "metodologia", "chi_siamo", "contatti", "privacy", "cookie"]
 
     def location(self, item):
         return reverse(item)
 
     def changefreq(self, item):
-        return "monthly" if item == "metodologia" else "hourly"
+        return "hourly" if item in ("home", "casi", "fatti_del_giorno", "elenco_fatti") else "monthly"
 
     def priority(self, item):
         return 1.0 if item == "home" else 0.7
@@ -91,5 +91,19 @@ def robots_txt(request):
 
 
 def sito(request):
-    """Context processor: indirizzo canonico della pagina (senza parametri di ricerca)."""
-    return {"SITO_URL": settings.SITO_URL, "url_canonico": f"{settings.SITO_URL}{request.path}"}
+    """Context processor: indirizzo canonico della pagina (senza parametri di ricerca) e pubblicità."""
+    return {
+        "SITO_URL": settings.SITO_URL,
+        "url_canonico": f"{settings.SITO_URL}{request.path}",
+        # niente annunci a chi amministra il sito: Google vieta i clic sui propri annunci
+        "ADSENSE_CLIENT": "" if getattr(request, "user", None) and request.user.is_staff else settings.ADSENSE_CLIENT,
+    }
+
+
+def ads_txt(request):
+    """Dichiara a Google chi è autorizzato a vendere gli annunci di questo sito."""
+    righe = []
+    if settings.ADSENSE_CLIENT:
+        pub = settings.ADSENSE_CLIENT.removeprefix("ca-")
+        righe.append(f"google.com, {pub}, DIRECT, f08c47fec0942fa0")
+    return HttpResponse("\n".join(righe) + "\n", content_type="text/plain")

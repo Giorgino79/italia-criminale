@@ -13,5 +13,9 @@ urlpatterns = [
     path("statistiche/", views.statistiche_view, name="statistiche"),
     path("mappa/", views.mappa, name="mappa"),
     path("metodologia/", views.metodologia, name="metodologia"),
+    path("chi-siamo/", views.pagina_statica, {"modello": "chi_siamo"}, name="chi_siamo"),
+    path("privacy/", views.pagina_statica, {"modello": "privacy"}, name="privacy"),
+    path("cookie/", views.pagina_statica, {"modello": "cookie"}, name="cookie"),
+    path("contatti/", views.contatti, name="contatti"),
     path("interno/orientamento/", views.interno_orientamento, name="interno_orientamento"),
 ]

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block titolo %}Privacy policy{% endblock %}
+{% block descrizione %}Informativa sul trattamento dei dati personali dei visitatori dell'Osservatorio Reati Italia (art. 13 GDPR).{% endblock %}
+{% block contenuto %}
+<article class="testo-lungo">
+<h1>Privacy policy</h1>
+<p class="nota">Informativa ai sensi dell'art. 13 del Regolamento (UE) 2016/679 (GDPR). Ultimo aggiornamento: 26 novembre 2026.</p>
+
+<h2>Titolare del trattamento</h2>
+<p>Il titolare del trattamento è {% if titolare %}<strong>{{ titolare }}</strong>{% else %}il gestore del sito osservatorioreati.it{% endif %}, contattabile tramite la pagina <a href="{% url 'contatti' %}">Contatti</a>.</p>
+
+<h2>Quali dati trattiamo</h2>
+<ul>
+  <li><strong>Dati di navigazione.</strong> Il server registra automaticamente indirizzo IP, data e ora, pagina richiesta e tipo di browser. Servono solo al funzionamento e alla sicurezza del sito e sono conservati per un periodo limitato dal fornitore di hosting.</li>
+  <li><strong>Dati inviati da te.</strong> Se usi il modulo Contatti o «Segnala un errore» trattiamo il testo del messaggio, l'email e il nome se li indichi. Li usiamo solo per rispondere o correggere la scheda e li conserviamo per il tempo necessario, al massimo 24 mesi.</li>
+  <li><strong>Cookie e pubblicità.</strong> Gli annunci di Google AdSense possono usare cookie e identificatori, solo dopo il tuo consenso raccolto con il banner. I dettagli sono nella <a href="{% url 'cookie' %}">Cookie policy</a>.</li>
+</ul>
+<p>Il sito non richiede registrazione e non crea profili dei visitatori.</p>
+
+<h2>Basi giuridiche</h2>
+<p>Legittimo interesse al funzionamento e alla sicurezza del sito (dati di navigazione), esecuzione della tua richiesta (messaggi e segnalazioni), consenso (cookie pubblicitari e di profilazione).</p>
+
+<h2>Fornitori che trattano dati per nostro conto</h2>
+<ul>
+  <li><strong>Heroku (Salesforce)</strong>: hosting del sito e del database. I dati possono essere trattati negli Stati Uniti, con le garanzie del Data Privacy Framework UE-USA e delle clausole contrattuali standard.</li>
+  <li><strong>Google</strong>: pubblicità (AdSense), gestione del consenso e caratteri tipografici (Google Fonts, che riceve l'indirizzo IP del browser). <a href="https://policies.google.com/technologies/partner-sites" rel="noopener" target="_blank">Come Google usa i dati dei siti partner</a>.</li>
+  <li><strong>OpenStreetMap</strong>: le mappe della pagina Località sono caricate dai server di OpenStreetMap, che ricevono l'indirizzo IP del browser.</li>
+  <li>Il servizio di posta usato per ricevere i messaggi del modulo Contatti.</li>
+</ul>
+
+<h2>Persone citate nelle notizie</h2>
+<p>Le schede non contengono nomi delle persone coinvolte: riportano una sintesi neutra, il tipo di reato, il luogo e titoli e link di articoli già pubblicati dalle testate giornalistiche, per finalità di informazione e documentazione. Se un contenuto ti riguarda puoi chiederne la rettifica o la rimozione dalla pagina <a href="{% url 'contatti' %}">Contatti</a>.</p>
+
+<h2>I tuoi diritti</h2>
+<p>Puoi chiedere in qualsiasi momento accesso, rettifica, cancellazione, limitazione del trattamento, portabilità dei dati e opporti al trattamento (artt. 15-22 GDPR), scrivendo dalla pagina <a href="{% url 'contatti' %}">Contatti</a>. Puoi revocare il consenso ai cookie dal link «Preferenze cookie» in fondo a ogni pagina. Hai anche il diritto di presentare reclamo al <a href="https://www.garanteprivacy.it" rel="noopener" target="_blank">Garante per la protezione dei dati personali</a>.</p>
+</article>
+{% endblock %}

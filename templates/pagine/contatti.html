@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block titolo %}Contatti{% endblock %}
+{% block descrizione %}Scrivi all'Osservatorio Reati Italia: informazioni, segnalazioni di errori, richieste di rettifica o rimozione e richieste sui dati personali.{% endblock %}
+{% block contenuto %}
+<article class="testo-lungo">
+<h1>Contatti</h1>
+<p>Usa questo modulo per informazioni, collaborazioni, segnalazioni di errori o richieste sui tuoi dati personali. Per un errore in un reato specifico è più rapido il pulsante «Segnala un errore» nella sua scheda.</p>
+<p>Se un contenuto ti riguarda e vuoi chiederne la rettifica o la rimozione, scegli il motivo corrispondente e indica l'indirizzo della pagina: ti risponderemo il prima possibile.</p>
+<form method="post" class="modulo">
+  {% csrf_token %}
+  {% for campo in form %}
+    <label{% if campo.name == "sito_web" %} class="trappola" aria-hidden="true"{% endif %}>{{ campo.label }}{{ campo }}{% for e in campo.errors %}<span class="errore">{{ e }}</span>{% endfor %}</label>
+  {% endfor %}
+  <p class="nota">I dati inviati servono solo a rispondere al messaggio. Vedi la <a href="{% url 'privacy' %}">Privacy policy</a>.</p>
+  <button type="submit">Invia</button>
+</form>
+</article>
+{% endblock %}

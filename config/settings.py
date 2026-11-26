@@ -160,6 +160,11 @@ DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="Osservatorio Reati <nore
 # Chi riceve l'avviso a ogni segnalazione di errore (più indirizzi separati da virgola)
 SEGNALAZIONI_EMAIL = env.list("SEGNALAZIONI_EMAIL", default=[])
 
+# Pubblicità Google AdSense (il codice editore è pubblico: compare anche in ads.txt). Vuoto = nessun annuncio.
+ADSENSE_CLIENT = env("ADSENSE_CLIENT", default="ca-pub-1154879090542376")
+# Titolare del trattamento indicato nella privacy policy (nome e cognome o ragione sociale)
+TITOLARE_NOME = env("TITOLARE_NOME", default="")
+
 # Invia ad altri siti solo l'origine (es. per le mappe OpenStreetMap, che la richiedono), mai l'indirizzo completo
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 

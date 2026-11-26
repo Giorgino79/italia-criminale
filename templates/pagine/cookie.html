@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block titolo %}Cookie policy{% endblock %}
+{% block descrizione %}Quali cookie usa l'Osservatorio Reati Italia, a cosa servono e come gestire il consenso.{% endblock %}
+{% block contenuto %}
+<article class="testo-lungo">
+<h1>Cookie policy</h1>
+<p class="nota">Ultimo aggiornamento: 26 novembre 2026.</p>
+<p>I cookie sono piccoli file che il sito salva nel browser. Questo sito ne usa di due tipi.</p>
+
+<h2>Cookie tecnici (sempre attivi)</h2>
+<table>
+  <thead><tr><th>Nome</th><th>A cosa serve</th><th>Durata</th></tr></thead>
+  <tbody>
+    <tr><td>csrftoken</td><td>Protegge i moduli (Contatti, Segnala un errore) da invii fraudolenti</td><td>1 anno</td></tr>
+    <tr><td>sessionid</td><td>Solo per chi accede all'area di amministrazione</td><td>2 settimane</td></tr>
+    <tr><td>Cookie di consenso di Google</td><td>Ricordano le tue scelte sul banner dei cookie</td><td>fino a 13 mesi</td></tr>
+  </tbody>
+</table>
+<p>Non richiedono consenso perché servono al funzionamento del sito.</p>
+
+<h2>Cookie pubblicitari di terze parti (solo con il tuo consenso)</h2>
+<p>Il sito mostra annunci di <strong>Google AdSense</strong>. Google e i suoi partner pubblicitari possono usare cookie e identificatori per mostrare annunci, misurarne l'efficacia e, se acconsenti, personalizzarli in base ai tuoi interessi. Questi cookie vengono installati solo dopo il consenso espresso con il banner che compare alla prima visita; se rifiuti puoi comunque vedere annunci non personalizzati.</p>
+<p>Per saperne di più: <a href="https://policies.google.com/technologies/ads" rel="noopener" target="_blank">come Google usa i cookie nella pubblicità</a>. Puoi gestire la personalizzazione degli annunci nelle <a href="https://adssettings.google.com" rel="noopener" target="_blank">impostazioni annunci di Google</a>.</p>
+
+<h2>Come cambiare le tue scelte</h2>
+<p>Puoi modificare o revocare il consenso in ogni momento dal link «Preferenze cookie» in fondo a ogni pagina. Puoi anche cancellare i cookie dalle impostazioni del browser.</p>
+<p>Per le altre informazioni sul trattamento dei dati vedi la <a href="{% url 'privacy' %}">Privacy policy</a>.</p>
+</article>
+{% endblock %}

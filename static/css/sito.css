@@ -129,3 +129,16 @@ html { scroll-behavior: smooth; }
 .cronologia-caso li > a { font: 600 1rem var(--serif); color: var(--inchiostro); text-decoration: none; }
 .cronologia-caso li > a:hover { color: var(--accento); }
 .cronologia-caso small { display: block; }
+
+/* Pagine informative e modulo contatti */
+.testo-lungo { max-width: 72ch; }
+.testo-lungo li { margin-bottom: .5rem; }
+.testo-lungo table td, .testo-lungo table th { text-align: left; }
+.piede__link { display: flex; flex-wrap: wrap; gap: .4rem 1.2rem; margin-top: .75rem; }
+.piede__link a { color: var(--tenue); }
+.modulo { display: grid; gap: .9rem; max-width: 560px; margin-top: 1.5rem; }
+.modulo label { display: flex; flex-direction: column; gap: .3rem; font-size: .85rem; color: var(--tenue); }
+.modulo input, .modulo select, .modulo textarea { font: inherit; font-size: .95rem; padding: .5rem; border: 1px solid var(--riga); border-radius: 4px; background: var(--superficie); color: var(--inchiostro); }
+.modulo .errore { color: var(--accento); font-size: .8rem; }
+.modulo button { justify-self: start; }
+.trappola { position: absolute; left: -9999px; }

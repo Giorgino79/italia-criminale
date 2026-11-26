@@ -21,6 +21,8 @@
   <meta property="og:image" content="{{ SITO_URL }}{% static 'img/condivisione.jpg' %}">
   <meta property="og:type" content="website">
   <link rel="stylesheet" href="{% static 'css/sito.css' %}">
+  {% if ADSENSE_CLIENT %}<meta name="google-adsense-account" content="{{ ADSENSE_CLIENT }}">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ ADSENSE_CLIENT }}" crossorigin="anonymous"></script>{% endif %}
   {% block head %}{% endblock %}
 </head>
 <body>
@@ -49,6 +51,14 @@
   </main>
   <footer class="piede contenitore">
     <p>Ogni reato riporta le fonti originali. Un arresto o una denuncia non sono una condanna. Segnala un errore dalla scheda del reato.</p>
+    <nav class="piede__link" aria-label="Informazioni sul sito">
+      <a href="{% url 'chi_siamo' %}">Chi siamo</a>
+      <a href="{% url 'metodologia' %}">Metodologia</a>
+      <a href="{% url 'contatti' %}">Contatti</a>
+      <a href="{% url 'privacy' %}">Privacy</a>
+      <a href="{% url 'cookie' %}">Cookie</a>
+      {% if ADSENSE_CLIENT %}<a href="#" onclick="(window.googlefc=window.googlefc||{}).callbackQueue=googlefc.callbackQueue||[];googlefc.callbackQueue.push(function(){googlefc.showRevocationMessage()});return false;">Preferenze cookie</a>{% endif %}
+    </nav>
   </footer>
   {% block script %}{% endblock %}
 </body>

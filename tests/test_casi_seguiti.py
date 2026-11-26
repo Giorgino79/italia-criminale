@@ -87,3 +87,16 @@ def test_comando_collega_casi(dati_base, garlasco):
     call_command("collega_casi", verbosity=0)
     assert garlasco.articoli.count() == 1
     assert Fatto.objects.count() == 0
+
+
+def test_pagine_legali_ads_e_contatti(client, dati_base, settings, mailoutbox):
+    settings.SEGNALAZIONI_EMAIL = ["redazione@example.org"]
+    assert client.get("/ads.txt").content.decode().strip() == "google.com, pub-1154879090542376, DIRECT, f08c47fec0942fa0"
+    home = client.get("/").content.decode()
+    assert "adsbygoogle.js?client=ca-pub-1154879090542376" in home and "/privacy/" in home and "/cookie/" in home
+    for url in ("/privacy/", "/cookie/", "/chi-siamo/", "/contatti/"):
+        assert client.get(url).status_code == 200
+    client.post("/contatti/", {"motivo": "rimozione", "email": "lettore@example.org", "messaggio": "Togliete la scheda 5"})
+    assert len(mailoutbox) == 1 and "rimozione" in mailoutbox[0].subject.lower()
+    client.post("/contatti/", {"motivo": "altro", "email": "spam@example.org", "messaggio": "x", "sito_web": "http://spam"})
+    assert len(mailoutbox) == 1  # lo spam non parte
